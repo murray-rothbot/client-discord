@@ -12,26 +12,54 @@ export class BTCCommand implements DiscordCommand {
   constructor(private readonly pricesRepository: PricesServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
-    const embeds = []
+    const response = {
+      content: '',
+      tts: false,
+      embeds: [
+        {
+          type: 'rich',
+          title: '',
+          description: '',
+          color: 0xff9900,
+          fields: [],
+          thumbnail: {
+            url: `https://murrayrothbot.com/murray-rothbot2.png`,
+            height: 0,
+            width: 0,
+          },
+          author: {
+            name: `Murray Rothbot`,
+            url: `https://murrayrothbot.com/`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
+          footer: {
+            text: `Powered by Murray Rothbot • ${new Date().toLocaleString()}`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
+        },
+      ],
+    }
 
-    for (const ticker of ['btcusd', 'btcbrl']) {
+    const tickers = [
+      { currency: 'USD', unity: '$', flag: '🇺🇸' },
+      { currency: 'BRL', unity: 'R$', flag: '🇧🇷' },
+    ]
+
+    for (const { currency, unity, flag } of tickers) {
       const {
         data: { price, symbol, source, change24h },
       } = await this.pricesRepository.getTicker({
-        symbol: ticker,
+        symbol: `BTC${currency}`,
       })
 
-      const embed = new EmbedBuilder()
-        .setTitle(`Bitcoin ${ticker.substring(3).toUpperCase()} Price`)
-        .addFields(
-          { name: 'Source', value: source },
-          { name: 'Symbol', value: symbol },
-          { name: 'Price', value: (+price).toFixed(2) },
-          { name: '24h change', value: `${(+change24h).toFixed(2)}%` },
-        )
-      embeds.push(embed)
+      response.embeds[0].fields.push({
+        name: `${flag} BTC${currency}`,
+        value: `${change24h > 0 ? '🔼' : '🔽'}  ${(+change24h).toFixed(
+          2,
+        )}%\n${unity} ${(+price).toLocaleString()}\nSource: ${source}`,
+      })
     }
 
-    return { embeds }
+    return response
   }
 }
