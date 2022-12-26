@@ -12,6 +12,7 @@ import {
   OpReturnCommand,
   AddressCommand,
   TransactionCommand,
+  ConvertCommand,
 } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
@@ -38,6 +39,7 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
     TransactionCommand,
     AlertPriceCommand,
     AlertFeeCommand,
+    ConvertCommand,
 
     // Helpers
     NumbersService,
