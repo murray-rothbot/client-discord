@@ -2,7 +2,6 @@ import { Command, DiscordTransformedCommand } from '@discord-nestjs/core'
 import { CommandInteraction } from 'discord.js'
 import { Injectable } from '@nestjs/common'
 import { PricesServiceRepository } from '../repositories/pricesservice.repository'
-import { ICommandResponse } from '../interfaces/command.interface'
 import { BtcDTO } from '../dto/btc.dto'
 
 @Command({
@@ -13,7 +12,7 @@ import { BtcDTO } from '../dto/btc.dto'
 export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
   constructor(private readonly pricesRepository: PricesServiceRepository) {}
 
-  async handler(interaction: CommandInteraction): Promise<ICommandResponse> {
+  async handler(interaction: CommandInteraction): Promise<any> {
     const response = {
       content: '',
       tts: false,

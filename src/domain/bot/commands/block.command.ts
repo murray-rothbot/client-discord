@@ -9,7 +9,6 @@ import {
 import { Injectable } from '@nestjs/common'
 import { BlockchainServiceRepository } from '../repositories'
 import { BlockDto } from '../dto/block.dto'
-import { ICommandResponse } from '../interfaces/command.interface'
 
 @Command({
   name: 'block',
@@ -23,7 +22,7 @@ export class BlockchainCommand implements DiscordTransformedCommand<BlockDto> {
   async handler(
     @Payload() dto: BlockDto,
     { interaction }: TransformedCommandExecutionContext,
-  ): Promise<ICommandResponse> {
+  ): Promise<any> {
     const response = {
       content: '',
       tts: false,
