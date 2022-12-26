@@ -2,12 +2,16 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class PricesServiceRepository {
-  baseUrl: string = process.env.PRICE_SERVICE
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly cfgService: ConfigService,
+  ) {}
 
-  constructor(private readonly httpService: HttpService) {}
+  baseUrl: string = this.cfgService.get<string>('PRICE_SERVICE')
 
   getTicker({ symbol }): Promise<any> {
     const url = `${this.baseUrl}/ticker?symbol=${symbol}`
