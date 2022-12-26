@@ -42,6 +42,7 @@ import { FeesCommand } from './commands/fees.command'
     AlertFeeCommand,
     ConvertCommand,
     FeesCommand,
+    ConvertCommand,
 
     // Helpers
     NumbersService,
