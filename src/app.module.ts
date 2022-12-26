@@ -1,3 +1,4 @@
+import { NumbersModule } from './utils/numbers/numbers.module'
 import { DiscordModule } from '@discord-nestjs/core'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -7,6 +8,7 @@ import { BotModule } from './domain/bot/bot.module'
 
 @Module({
   imports: [
+    NumbersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
