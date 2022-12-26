@@ -16,6 +16,7 @@ import {
 } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { FeesCommand } from './commands/fees.command'
 
 @Module({
   imports: [DiscordModule.forFeature(), HttpModule],
@@ -40,6 +41,7 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
     AlertPriceCommand,
     AlertFeeCommand,
     ConvertCommand,
+    FeesCommand,
 
     // Helpers
     NumbersService,
