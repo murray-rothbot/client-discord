@@ -6,6 +6,7 @@ import { BotMiddleware } from 'src/shared/middlewares/bot.middleware'
 import { BotService } from './bot.service'
 import { BlockchainCommand, BTCCommand, HelpCommand, OpreturnCommand } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
+import { NumbersService } from 'src/utils/numbers/numbers.service'
 
 @Module({
   imports: [DiscordModule.forFeature(), HttpModule],
@@ -26,6 +27,9 @@ import { BlockchainServiceRepository, PricesServiceRepository } from './reposito
     BTCCommand,
     OpreturnCommand,
     HelpCommand,
+
+    // Helpers
+    NumbersService,
   ],
 })
 export class BotModule {}
