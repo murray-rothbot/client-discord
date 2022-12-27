@@ -40,11 +40,11 @@ export class FeesCommand implements DiscordCommand {
         data: { fastestFee, halfHourFee, hourFee, economyFee, minimumFee },
       } = await this.blockRepository.getFees()
 
-      fields.push({ name: 'Fast', value: vByte(fastestFee), inline: true })
-      fields.push({ name: '1/2 hour', value: vByte(halfHourFee), inline: true })
-      fields.push({ name: '1 hour', value: vByte(hourFee), inline: true })
-      fields.push({ name: 'Economy', value: vByte(economyFee), inline: true })
-      fields.push({ name: 'Minimum', value: vByte(minimumFee), inline: true })
+      fields.push({ name: '🐇 Fast', value: vByte(fastestFee), inline: true })
+      fields.push({ name: '🐢 1/2 hour', value: vByte(halfHourFee), inline: true })
+      fields.push({ name: '🦥 1 hour', value: vByte(hourFee), inline: true })
+      fields.push({ name: '🪙 Economy', value: vByte(economyFee), inline: true })
+      fields.push({ name: '🔻 Minimum', value: vByte(minimumFee), inline: true })
       fields.push({ name: '\u200B', value: '\u200B', inline: true })
     } catch {
       response.embeds[0].title = 'ERROR'
