@@ -2,12 +2,16 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class BlockchainServiceRepository {
-  baseUrl: string = process.env.BLOCKCHAIN_SERVICE
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly cfgService: ConfigService,
+  ) {}
 
-  constructor(private readonly httpService: HttpService) {}
+  baseUrl: string = this.cfgService.get<string>('BLOCKCHAIN_SERVICE')
 
   getBlock({ hash = null, height = null }): Promise<any> {
     let url = `${this.baseUrl}/block`
