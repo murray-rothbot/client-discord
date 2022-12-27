@@ -7,6 +7,8 @@ import { BotService } from './bot.service'
 import { BlockchainCommand, BTCCommand, HelpCommand, OpreturnCommand } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { AddressCommand } from './commands/address.command'
+import { TransactionCommand } from './commands/tx.command'
 
 @Module({
   imports: [DiscordModule.forFeature(), HttpModule],
@@ -23,10 +25,12 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
     PricesServiceRepository,
 
     // Commands
+    AddressCommand,
     BlockchainCommand,
     BTCCommand,
     OpreturnCommand,
     HelpCommand,
+    TransactionCommand,
 
     // Helpers
     NumbersService,

@@ -33,4 +33,34 @@ export class BlockchainServiceRepository {
       ),
     )
   }
+
+  getAddress({ address }): Promise<any> {
+    let url = `${this.baseUrl}/address?address=${address}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
+
+  getTransaction({ transaction }): Promise<any> {
+    let url = `${this.baseUrl}/tx?transaction=${transaction}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
