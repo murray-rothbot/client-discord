@@ -35,7 +35,7 @@ export class BlockchainServiceRepository {
   }
 
   getAddress({ address }): Promise<any> {
-    let url = `${this.baseUrl}/address?address=${address}`
+    let url = `${this.baseUrl}/address/${address}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
