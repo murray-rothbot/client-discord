@@ -9,6 +9,7 @@ import {
 import { Injectable } from '@nestjs/common'
 import { BlockchainServiceRepository } from '../repositories'
 import { AddressDto } from '../dto'
+import { NumbersService } from 'src/utils/numbers/numbers.service'
 
 @Command({
   name: 'address',
@@ -17,7 +18,10 @@ import { AddressDto } from '../dto'
 @UsePipes(TransformPipe)
 @Injectable()
 export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
-  constructor(private readonly blockRepository: BlockchainServiceRepository) {}
+  constructor(
+    private readonly blockRepository: BlockchainServiceRepository,
+    private readonly numbersService: NumbersService,
+  ) {}
 
   async handler(
     @Payload() dto: AddressDto,
@@ -57,12 +61,12 @@ export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
       fields.push({ name: '\u200B', value: 'On chain transactions:' })
       fields.push({
         name: `📥 Received: ${funded_txo_count}`,
-        value: `Total: ${funded_txo_sum} sats`,
+        value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
         inline: true,
       })
       fields.push({
         name: `📤 Sent: ${spent_txo_count}`,
-        value: `Total: ${spent_txo_sum} sats`,
+        value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
         inline: true,
       })
 
@@ -73,16 +77,14 @@ export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
       fields.push({ name: '\u200B', value: 'Mempool transactions:' })
       fields.push({
         name: `📥 Received: ${funded_txo_count}`,
-        value: `Total: ${funded_txo_sum} sats`,
+        value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
         inline: true,
       })
       fields.push({
         name: `📤 Sent: ${spent_txo_count}`,
-        value: `Total: ${spent_txo_sum} sats`,
+        value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
         inline: true,
       })
-
-      console.log(data.data)
     } catch (err) {
       console.error(err)
       response.embeds[0].title = 'ERROR'
