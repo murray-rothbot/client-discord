@@ -50,7 +50,7 @@ export class BlockchainServiceRepository {
   }
 
   getTransaction({ transaction }): Promise<any> {
-    let url = `${this.baseUrl}/tx?transaction=${transaction}`
+    let url = `${this.baseUrl}/tx/${transaction}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
