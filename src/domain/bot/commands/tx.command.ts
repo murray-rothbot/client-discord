@@ -47,7 +47,7 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
     try {
       const { transaction } = dto
 
-      const data = (await this.blockRepository.getTransaction({ transaction })).data
+      const { data } = await this.blockRepository.getTransaction({ transaction })
 
       const {
         vin,
@@ -57,20 +57,22 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
         status: { confirmed, block_hash, block_time },
       } = data
 
-      const vin_total = vin.reduce((total, num) => total + num.prevout.value, 0)
-      const vout_total = vout.reduce((total, num) => total + num.value, 0)
+      const vin_total = vin.reduce((total, num) => total + num.prevout?.value, 0)
+      const vout_total = vout.reduce((total, num) => total + num?.value, 0)
       const fees = vin_total - vout_total
 
       const rbf = vin.some((v) => v.sequence < 0xfffffffe)
 
       fields.push({
-        name: '\u200B',
+        name: 'Transaction Hex:',
         value: `🔀 ${transaction}`,
       })
 
       fields.push({
         name: `📥 Inputs:`,
-        value: `${vin.length} (${vin_total.toLocaleString()} sats)`,
+        value: `${vin.length ? vin.length : 0} (${
+          vin_total ? vin_total?.toLocaleString() : 0
+        } sats)`,
         inline: true,
       })
       fields.push({
@@ -80,7 +82,7 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
       })
       fields.push({
         name: `🪙 Fees: `,
-        value: `${fees.toLocaleString()} sats`,
+        value: `${fees ? fees.toLocaleString() : 0} sats`,
         inline: true,
       })
       fields.push({
