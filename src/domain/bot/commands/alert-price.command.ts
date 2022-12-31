@@ -54,10 +54,8 @@ export class AlertPriceCommand implements DiscordTransformedCommand<AlertPriceDt
     const { price, currency } = dto
 
     const userId = interaction.user.id
-    const userInfo = JSON.stringify(interaction.user)
     const { data } = await this.murrayRepository.createAlertPrice({
       userId,
-      userInfo,
       price,
       currency,
     })

@@ -11,15 +11,16 @@ export class MurrayServiceRepository {
     private readonly cfgService: ConfigService,
   ) {}
 
-  baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
+  baseUrl: string = this.cfgService.get<string>('PRICE_SERVICE')
+  webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
-  createAlertPrice({ userId, userInfo, price, currency }): Promise<any> {
+  createAlertPrice({ userId, price, currency }): Promise<any> {
     const url = `${this.baseUrl}/alert-price`
+    const webhookUrl = `${this.webhookUrl}/alert-price/${userId}`
     return lastValueFrom(
       this.httpService
         .post(url, {
-          userId,
-          userInfo,
+          webhookUrl,
           price,
           currency,
         })
