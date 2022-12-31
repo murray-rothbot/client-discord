@@ -4,8 +4,18 @@ import { DiscordModule, registerFilterGlobally } from '@discord-nestjs/core'
 import { CommandValidationFilter } from 'src/shared/filters/command-validation.filter'
 import { BotMiddleware } from 'src/shared/middlewares/bot.middleware'
 import { BotService } from './bot.service'
-import { BlockchainCommand, BTCCommand, HelpCommand, OpreturnCommand } from './commands'
-import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
+import {
+  AlertPriceCommand,
+  BlockchainCommand,
+  BTCCommand,
+  HelpCommand,
+  OpreturnCommand,
+} from './commands'
+import {
+  BlockchainServiceRepository,
+  MurrayServiceRepository,
+  PricesServiceRepository,
+} from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { AddressCommand } from './commands/address.command'
 import { TransactionCommand } from './commands/tx.command'
@@ -20,9 +30,10 @@ import { TransactionCommand } from './commands/tx.command'
     BotMiddleware,
     BotService,
 
-    // Data Prividers
+    // Data Providers
     BlockchainServiceRepository,
     PricesServiceRepository,
+    MurrayServiceRepository,
 
     // Commands
     AddressCommand,
@@ -31,6 +42,7 @@ import { TransactionCommand } from './commands/tx.command'
     OpreturnCommand,
     HelpCommand,
     TransactionCommand,
+    AlertPriceCommand,
 
     // Helpers
     NumbersService,
