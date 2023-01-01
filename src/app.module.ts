@@ -7,6 +7,7 @@ import config from './config/env.config'
 import { BotModule } from './domain/bot/bot.module'
 import { ScheduleModule } from '@nestjs/schedule'
 import { WebSocketModule } from 'nestjs-websocket'
+import { WebhooksModule } from './domain/webhooks/webhooks.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WebSocketModule } from 'nestjs-websocket'
     WebSocketModule.forRoot({
       url: 'wss://mempool.space/api/v1/ws',
     }),
+    WebhooksModule,
   ],
 })
 export class AppModule {}
