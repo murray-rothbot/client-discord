@@ -7,24 +7,24 @@ import {
 } from '@discord-nestjs/core'
 import { TransformPipe } from '@discord-nestjs/common'
 import { Injectable } from '@nestjs/common'
-import { AlertPriceDto } from '../dto/alert-price.dto'
+import { AlertFeeDto } from '../dto/alert-fee.dto'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
-import { PricesServiceRepository } from '../repositories'
+import { BlockchainServiceRepository } from '../repositories/blockchainservice.repository'
 
 @Command({
-  name: 'alert-price',
-  description: 'Create an alert price.',
+  name: 'alert-fee',
+  description: 'Create an alert fee.',
 })
 @UsePipes(TransformPipe)
 @Injectable()
-export class AlertPriceCommand implements DiscordTransformedCommand<AlertPriceDto> {
+export class AlertFeeCommand implements DiscordTransformedCommand<AlertFeeDto> {
   constructor(
-    private readonly pricesServiceRepository: PricesServiceRepository,
+    private readonly blockchainRepository: BlockchainServiceRepository,
     private readonly numbersService: NumbersService,
   ) {}
 
   async handler(
-    @Payload() dto: AlertPriceDto,
+    @Payload() dto: AlertFeeDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
     const response = {
@@ -51,30 +51,18 @@ export class AlertPriceCommand implements DiscordTransformedCommand<AlertPriceDt
       ],
     }
 
-    const { price, currency } = dto
+    const { fee } = dto
 
     const userId = interaction.user.id
-    const { data } = await this.pricesServiceRepository.createAlertPrice({
+    const { data } = await this.blockchainRepository.createAlertFee({
       userId,
-      price,
-      currency,
+      fee,
     })
-
-    const currentPrice =
-      data.currency === 'USD'
-        ? this.numbersService.formatterUSD.format(data.currentPrice)
-        : this.numbersService.formatterBRL.format(data.currentPrice)
-    const side = data.above ? 'Higher or equal then:\n🔼 ' : 'Lower or equal  then\n🔽 '
-    const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
-    const priceAlert =
-      data.currency === 'USD'
-        ? this.numbersService.formatterUSD.format(data.price)
-        : this.numbersService.formatterBRL.format(data.price)
 
     const fields = response.embeds[0].fields
     fields.push({
       name: 'You will receive an alert when the price reaches',
-      value: `**\n${side}${flag} ${priceAlert}\n\nCurrent Price:\n${flag} ${currentPrice}**`,
+      value: `**\nLower or equal then:\n🔽 ${data.fee} sats/vbyte\n**`,
     })
     return response
   }

@@ -12,6 +12,7 @@ export class BlockchainServiceRepository {
   ) {}
 
   baseUrl: string = this.cfgService.get<string>('BLOCKCHAIN_SERVICE')
+  webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
   getBlock({ hash = null, height = null }): Promise<any> {
     let url = `${this.baseUrl}/block`
@@ -35,7 +36,7 @@ export class BlockchainServiceRepository {
   }
 
   getAddress({ address }): Promise<any> {
-    let url = `${this.baseUrl}/address/${address}`
+    const url = `${this.baseUrl}/address/${address}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -50,7 +51,7 @@ export class BlockchainServiceRepository {
   }
 
   getTransaction({ transaction }): Promise<any> {
-    let url = `${this.baseUrl}/tx/${transaction}`
+    const url = `${this.baseUrl}/tx/${transaction}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -61,6 +62,42 @@ export class BlockchainServiceRepository {
           return null
         }),
       ),
+    )
+  }
+
+  getFee(): Promise<any> {
+    const url = `${this.baseUrl}/fees`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
+
+  createAlertFee({ userId, fee }): Promise<any> {
+    const url = `${this.baseUrl}/alert-fee`
+    const webhookUrl = `${this.webhookUrl}/alert-fee/${userId}`
+
+    return lastValueFrom(
+      this.httpService
+        .post(url, {
+          webhookUrl,
+          fee,
+        })
+        .pipe(
+          map((response: AxiosResponse<any>) => {
+            return response.data
+          }),
+          catchError(async () => {
+            return null
+          }),
+        ),
     )
   }
 }
