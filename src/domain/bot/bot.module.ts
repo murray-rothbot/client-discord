@@ -4,13 +4,7 @@ import { DiscordModule, registerFilterGlobally } from '@discord-nestjs/core'
 import { CommandValidationFilter } from 'src/shared/filters/command-validation.filter'
 import { BotMiddleware } from 'src/shared/middlewares/bot.middleware'
 import { BotService } from './bot.service'
-import {
-  AlertPriceCommand,
-  BlockchainCommand,
-  BTCCommand,
-  HelpCommand,
-  OpreturnCommand,
-} from './commands'
+import { AlertPriceCommand, BlockchainCommand, BTCCommand, OpreturnCommand } from './commands'
 import {
   BlockchainServiceRepository,
   MurrayServiceRepository,
@@ -40,7 +34,6 @@ import { TransactionCommand } from './commands/tx.command'
     BlockchainCommand,
     BTCCommand,
     OpreturnCommand,
-    HelpCommand,
     TransactionCommand,
     AlertPriceCommand,
 
