@@ -19,8 +19,8 @@ import { OpReturnDTO } from '../dto/opreturn.dto'
   description: 'Write data to the blockchain',
 })
 @Injectable()
-export class OpreturnCommand implements DiscordCommand {
-  private readonly logger = new Logger(OpreturnCommand.name)
+export class OpReturnCommand implements DiscordCommand {
+  private readonly logger = new Logger(OpReturnCommand.name)
   private readonly opReturnModalId = 'opreturnModal'
   private readonly msgComponentId = 'opreturn_message'
 

@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { OpreturnCommand } from '../opreturn.command'
+import { OpReturnCommand } from '../op-return.command'
 
 describe('OpreturnCommand', () => {
-  let service: OpreturnCommand
+  let service: OpReturnCommand
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [OpreturnCommand],
+      controllers: [OpReturnCommand],
       providers: [],
     }).compile()
 
-    service = module.get(OpreturnCommand)
+    service = module.get(OpReturnCommand)
   })
 
   it('should be defined', () => {
