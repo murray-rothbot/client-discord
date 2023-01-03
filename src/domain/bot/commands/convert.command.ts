@@ -50,7 +50,7 @@ export class ConvertCommand implements DiscordTransformedCommand<ConvertDto> {
 
     try {
       const { value, currency } = dto
-      const request = { value, currency }
+      const request = { value: Math.abs(value), currency }
       const {
         data: { btc, sat, usd, brl },
       } = await this.priceRepository.convert(request)
