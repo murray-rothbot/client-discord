@@ -46,7 +46,17 @@ export class FeesCommand implements DiscordCommand {
       fields.push({ name: '🪙 Economy', value: vByte(economyFee), inline: true })
       fields.push({ name: '🔻 Minimum', value: vByte(minimumFee), inline: true })
       fields.push({ name: '\u200B', value: '\u200B', inline: true })
-    } catch {
+
+      if (fastestFee == 1) {
+        fields.push({
+          name: 'Great moment to:',
+          value: '* do a coinjoin\n* consolidate your utxos\n* open a lightning channel',
+          inline: false,
+        })
+      }
+    } catch (err) {
+      console.error(err)
+
       response.embeds[0].title = 'ERROR'
       response.embeds[0].description = 'Something went wrong'
     }
