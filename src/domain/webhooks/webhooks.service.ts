@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { Client, EmbedBuilder } from 'discord.js'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../bot/repositories/blockchainservice.repository'
-import { AlertPriceBodyDto, AlertFeeBodyDto } from './dto'
+import { AlertPriceBodyDto, AlertFeeBodyDto, AlertTxBodyDto } from './dto'
 
 @Injectable()
 export class WebhooksService {
@@ -71,6 +71,54 @@ export class WebhooksService {
       const embed = new EmbedBuilder()
         .setAuthor({
           name: `🔔 New Alert Fee 🔔`,
+          url: `https://murrayrothbot.com/`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setFields(fields)
+        .setFooter({
+          text: `Powered by Murray Rothbot`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setTimestamp(new Date())
+        .setColor(0xff9900)
+
+      user.send({
+        embeds: [embed],
+      })
+    })
+
+    return true
+  }
+
+  sendAlertTx(userId: string, alertTx: AlertTxBodyDto) {
+    this.client.users.fetch(userId).then(async (user) => {
+      const fields = []
+      fields.push({
+        name: 'Transaction Hex:',
+        value: `🔀 ${alertTx.txId}`,
+      })
+
+      const confirmationsLeft = alertTx.confirmationsAlert - alertTx.currentConfirmation
+      let confirmationsDone = alertTx.currentConfirmation
+      if (alertTx.currentConfirmation >= 6) {
+        confirmationsDone = 6
+      }
+      const confirmationIcons = []
+      for (let i = 0; i < confirmationsDone; i++) {
+        confirmationIcons.push('🟢')
+      }
+      for (let i = 0; i < confirmationsLeft; i++) {
+        confirmationIcons.push('🟡')
+      }
+      fields.push({
+        name: `✅ Confirmations: ${alertTx.currentConfirmation}/${alertTx.confirmationsAlert}`,
+        value: `${confirmationIcons.join('')}`,
+        inline: true,
+      })
+
+      const embed = new EmbedBuilder()
+        .setAuthor({
+          name: `🔔 Alert Transaction Confirmation 🔔`,
           url: `https://murrayrothbot.com/`,
           iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
         })
