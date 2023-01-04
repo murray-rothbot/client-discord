@@ -13,6 +13,7 @@ import {
   AddressCommand,
   TransactionCommand,
   ConvertCommand,
+  AlertTxCommand,
 } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
@@ -42,7 +43,7 @@ import { FeesCommand } from './commands/fees.command'
     AlertFeeCommand,
     ConvertCommand,
     FeesCommand,
-    ConvertCommand,
+    AlertTxCommand,
 
     // Helpers
     NumbersService,
