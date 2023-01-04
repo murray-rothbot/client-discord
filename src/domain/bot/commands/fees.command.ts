@@ -38,7 +38,7 @@ export class FeesCommand implements DiscordCommand {
     try {
       const {
         data: { fastestFee, halfHourFee, hourFee, economyFee, minimumFee },
-      } = await this.blockRepository.getFees()
+      } = await this.blockRepository.getFee()
 
       fields.push({ name: '🐇 Fast', value: vByte(fastestFee), inline: true })
       fields.push({ name: '🐢 1/2 hour', value: vByte(halfHourFee), inline: true })
