@@ -100,4 +100,26 @@ export class BlockchainServiceRepository {
         ),
     )
   }
+
+  createAlertTx({ userId, txId, confirmationsAlert }): Promise<any> {
+    const url = `${this.baseUrl}/alert-tx`
+    const webhookUrl = `${this.webhookUrl}/alert-tx/${userId}`
+
+    return lastValueFrom(
+      this.httpService
+        .post(url, {
+          webhookUrl,
+          txId,
+          confirmationsAlert,
+        })
+        .pipe(
+          map((response: AxiosResponse<any>) => {
+            return response.data
+          }),
+          catchError(async () => {
+            return null
+          }),
+        ),
+    )
+  }
 }
