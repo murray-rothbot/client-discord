@@ -61,7 +61,7 @@ export class AlertFeeCommand implements DiscordTransformedCommand<AlertFeeDto> {
 
     const fields = response.embeds[0].fields
     fields.push({
-      name: 'You will receive an alert when the price reaches',
+      name: 'You will receive an alert when the fee reaches',
       value: `**\nLower or equal then:\n🔽 ${data.fee} sats/vbyte\n**`,
     })
     return response

@@ -101,6 +101,22 @@ export class BlockchainServiceRepository {
     )
   }
 
+  listAlertFee({ userId }): Promise<any> {
+    const webhookUrl = `${this.webhookUrl}/alert-fee/${userId}`
+    const url = `${this.baseUrl}/alert-fee?webhookUrl=${webhookUrl}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
+
   createAlertTx({ userId, txId, confirmationsAlert }): Promise<any> {
     const url = `${this.baseUrl}/alert-tx`
     const webhookUrl = `${this.webhookUrl}/alert-tx/${userId}`
@@ -120,6 +136,22 @@ export class BlockchainServiceRepository {
             return null
           }),
         ),
+    )
+  }
+
+  listAlertTx({ userId }): Promise<any> {
+    const webhookUrl = `${this.webhookUrl}/alert-tx/${userId}`
+    const url = `${this.baseUrl}/alert-tx?webhookUrl=${webhookUrl}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
     )
   }
 }
