@@ -55,6 +55,7 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
     const { data: alerts } = await this.blockchainRepository.listAlertFee({ userId })
 
     const fields = response.embeds[0].fields
+    const description = []
 
     if (alerts.length == 0) {
       fields.push({
@@ -62,10 +63,7 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
         value: 'Use `/alert-fee` to schedule one.',
       })
     } else if (alerts.length > 1) {
-      fields.push({
-        name: 'You will receive an alert when the fee reaches',
-        value: '\u200B',
-      })
+      description.push("You will receive an alert when the fee reaches\n**Lower or equal then:**\n\n")
     }
 
     for (const data of alerts) {
@@ -86,18 +84,11 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
           value: `**\nLower or equal then:\n🔽 ${data.fee} sats/vbyte\n**`,
         })
       } else {
-        fields.push({
-          name: `Lower or equal then:`,
-          value: `🔽 ${data.fee} sats/vbyte`,
-          inline: true,
-        })
+        description.push(`🔔 🔽 ${data.fee} sats/vbyte\n`)
       }
     }
-
-    if (alerts.length > 3 && alerts.length % 3 != 0) {
-      for (let i = 0; i < 3 - (alerts.length % 3); i++) {
-        fields.push({ name: `\u200B`, value: `\u200B`, inline: true })
-      }
+    if(alerts.length > 1){
+      response.embeds[0].description = description.join("")
     }
 
     return response
