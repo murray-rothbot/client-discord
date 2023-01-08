@@ -63,7 +63,9 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
         value: 'Use `/alert-fee` to schedule one.',
       })
     } else if (alerts.length > 1) {
-      description.push("You will receive an alert when the fee reaches\n**Lower or equal then:**\n\n")
+      description.push(
+        'You will receive an alert when the fee reaches\n**Lower or equal then:**\n\n',
+      )
     }
 
     for (const data of alerts) {
@@ -87,8 +89,8 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
         description.push(`🔔 🔽 ${data.fee} sats/vbyte\n`)
       }
     }
-    if(alerts.length > 1){
-      response.embeds[0].description = description.join("")
+    if (alerts.length > 1) {
+      response.embeds[0].description = description.join('')
     }
 
     return response
