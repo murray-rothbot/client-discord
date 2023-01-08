@@ -54,14 +54,12 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
     const userId = interaction.user.id
     const { data: alerts } = await this.blockchainRepository.listAlertFee({ userId })
 
-    console.log(JSON.stringify(alerts))
-
     const fields = response.embeds[0].fields
 
     if (alerts.length == 0) {
       fields.push({
         name: 'No fee alerts scheduled.',
-        value: 'Use `\\alert-fee` to schedule one.',
+        value: 'Use `\/alert-fee` to schedule one.',
       })
     } else if (alerts.length > 1) {
       fields.push({
