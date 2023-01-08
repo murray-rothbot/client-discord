@@ -59,7 +59,7 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
     if (alerts.length == 0) {
       fields.push({
         name: 'No fee alerts scheduled.',
-        value: 'Use `\/alert-fee` to schedule one.',
+        value: 'Use `/alert-fee` to schedule one.',
       })
     } else if (alerts.length > 1) {
       fields.push({
