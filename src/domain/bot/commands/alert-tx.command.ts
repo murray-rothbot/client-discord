@@ -12,7 +12,7 @@ import { AlertTxDto } from '../dto/alert-tx.dto'
 
 @Command({
   name: 'alert-tx',
-  description: 'Creat new transaction alert',
+  description: 'Create new transaction alert',
 })
 @UsePipes(TransformPipe)
 @Injectable()
@@ -34,6 +34,11 @@ export class AlertTxCommand implements DiscordTransformedCommand<AlertTxDto> {
           color: 0xff9900,
           timestamp: new Date(),
           fields: [],
+          author: {
+            name: `🗓️ Schedule Alert Transaction 🔔`,
+            url: `https://murrayrothbot.com/`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
           footer: {
             text: `Powered by Murray Rothbot`,
             icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
@@ -61,7 +66,6 @@ export class AlertTxCommand implements DiscordTransformedCommand<AlertTxDto> {
         name: 'Transaction Hex:',
         value: `🔀 ${transaction}`,
       })
-
       fields.push({
         name: `✅ How many confirmations?`,
         value: `${dto.confirmations}`,
