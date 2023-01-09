@@ -50,7 +50,7 @@ export class FeesCommand implements DiscordCommand {
       if (fastestFee == 1) {
         fields.push({
           name: '\u200B\nGreat moment to:',
-          value: '* do a coinjoin\n* consolidate your utxos\n* open a lightning channel',
+          value: '* Do a coinjoin\n* Consolidate your UTXOs\n* Open a Lightning Channel',
           inline: false,
         })
       }
