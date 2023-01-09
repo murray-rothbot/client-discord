@@ -8,7 +8,6 @@ import {
 import { TransformPipe } from '@discord-nestjs/common'
 import { Injectable } from '@nestjs/common'
 import { AlertFeeDto } from '../dto/alert-fee.dto'
-import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../repositories/blockchainservice.repository'
 
 @Command({
@@ -18,10 +17,7 @@ import { BlockchainServiceRepository } from '../repositories/blockchainservice.r
 @UsePipes(TransformPipe)
 @Injectable()
 export class AlertFeeCommand implements DiscordTransformedCommand<AlertFeeDto> {
-  constructor(
-    private readonly blockchainRepository: BlockchainServiceRepository,
-    private readonly numbersService: NumbersService,
-  ) {}
+  constructor(private readonly blockchainRepository: BlockchainServiceRepository) {}
 
   async handler(
     @Payload() dto: AlertFeeDto,
@@ -51,19 +47,27 @@ export class AlertFeeCommand implements DiscordTransformedCommand<AlertFeeDto> {
       ],
     }
 
-    const { fee } = dto
+    try {
+      const { fee } = dto
 
-    const userId = interaction.user.id
-    const { data } = await this.blockchainRepository.createAlertFee({
-      userId,
-      fee,
-    })
+      const userId = interaction.user.id
+      const { data } = await this.blockchainRepository.createAlertFee({
+        userId,
+        fee,
+      })
 
-    const fields = response.embeds[0].fields
-    fields.push({
-      name: 'You will receive an alert when the fee reaches',
-      value: `**\nLower or equal then:\n🔽 ${data.fee} sats/vbyte\n**`,
-    })
+      const fields = response.embeds[0].fields
+      fields.push({
+        name: 'You will receive an alert when the fee reaches',
+        value: `\u200b\n**lower or equal then:**\n\n⬇️ ${data.fee} sats/vByte\n`,
+      })
+    } catch (err) {
+      console.error(err)
+
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'Something went wrong'
+    }
+
     return response
   }
 }
