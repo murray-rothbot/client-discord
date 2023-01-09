@@ -24,11 +24,6 @@ export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
           color: 0xff9900,
           timestamp: new Date(),
           fields: [],
-          // thumbnail: {
-          //   url: `https://murrayrothbot.com/murray-rothbot2.png`,
-          //   height: 0,
-          //   width: 0,
-          // },
           author: {
             name: `Murray Rothbot`,
             url: `https://murrayrothbot.com/`,
@@ -42,27 +37,34 @@ export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
       ],
     }
 
-    const tickers = [
-      { currency: 'USD', unity: '$', flag: '🇺🇸' },
-      { currency: 'BRL', unity: 'R$', flag: '🇧🇷' },
-    ]
+    try {
+      const tickers = [
+        { currency: 'USD', unity: '$', flag: '🇺🇸' },
+        { currency: 'BRL', unity: 'R$', flag: '🇧🇷' },
+      ]
 
-    for (const { currency, unity, flag } of tickers) {
-      const {
-        data: { price, symbol, source, change24h },
-      } = await this.pricesRepository.getTicker({
-        symbol: `BTC${currency}`,
-      })
+      for (const { currency, unity, flag } of tickers) {
+        const {
+          data: { price, symbol, source, change24h },
+        } = await this.pricesRepository.getTicker({
+          symbol: `BTC${currency}`,
+        })
 
-      const name = `${flag} ${symbol}`
-      const arrow = change24h > 0 ? '🔼' : '🔽'
-      const change_str = `${(+change24h).toFixed(2)}%`
-      const price_str = (+price).toLocaleString()
+        const name = `${flag} ${symbol}`
+        const arrow = change24h > 0 ? '🔼' : '🔽'
+        const change_str = `${(+change24h).toFixed(2)}%`
+        const price_str = (+price).toLocaleString()
 
-      response.embeds[0].fields.push({
-        name,
-        value: `${arrow} ${change_str}\n${unity} ${price_str}\nSource: ${source}`,
-      })
+        response.embeds[0].fields.push({
+          name,
+          value: `${arrow} ${change_str}\n${unity} ${price_str}\nSource: ${source}`,
+        })
+      }
+    } catch (err) {
+      console.error(err)
+
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'Something went wrong'
     }
 
     return response

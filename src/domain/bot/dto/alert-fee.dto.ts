@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber } from 'class-validator'
 export class AlertFeeDto {
   @Param({
     name: 'fee',
-    description: 'Fee in sat/vbyte',
+    description: 'Fee in sat/vByte',
     required: true,
     type: ParamType.INTEGER,
   })

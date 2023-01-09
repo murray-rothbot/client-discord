@@ -51,31 +51,39 @@ export class AlertPriceCommand implements DiscordTransformedCommand<AlertPriceDt
       ],
     }
 
-    const { price, currency } = dto
+    try {
+      const { price, currency } = dto
 
-    const userId = interaction.user.id
-    const { data } = await this.pricesServiceRepository.createAlertPrice({
-      userId,
-      price,
-      currency,
-    })
+      const userId = interaction.user.id
+      const { data } = await this.pricesServiceRepository.createAlertPrice({
+        userId,
+        price,
+        currency,
+      })
 
-    const currentPrice =
-      data.currency === 'USD'
-        ? this.numbersService.formatterUSD.format(data.currentPrice)
-        : this.numbersService.formatterBRL.format(data.currentPrice)
-    const side = data.above ? 'Higher or equal then:\n🔼 ' : 'Lower or equal  then\n🔽 '
-    const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
-    const priceAlert =
-      data.currency === 'USD'
-        ? this.numbersService.formatterUSD.format(data.price)
-        : this.numbersService.formatterBRL.format(data.price)
+      const currentPrice =
+        data.currency === 'USD'
+          ? this.numbersService.formatterUSD.format(data.currentPrice)
+          : this.numbersService.formatterBRL.format(data.currentPrice)
+      const side = data.above ? '**Higher or equal then:**\n📈 ' : '**Lower or equal then:**\n📉 '
+      const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
+      const priceAlert =
+        data.currency === 'USD'
+          ? this.numbersService.formatterUSD.format(data.price)
+          : this.numbersService.formatterBRL.format(data.price)
 
-    const fields = response.embeds[0].fields
-    fields.push({
-      name: 'You will receive an alert when the price reaches',
-      value: `**\n${side}${flag} ${priceAlert}\n\nCurrent Price:\n${flag} ${currentPrice}**`,
-    })
+      const fields = response.embeds[0].fields
+      fields.push({
+        name: '**You will receive an alert when the price reaches**',
+        value: `\n\u200b\n${side}${flag} ${priceAlert}\n\n**Current Price:**\n${flag} ${currentPrice}`,
+      })
+    } catch (err) {
+      console.error(err)
+
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'Something went wrong'
+    }
+
     return response
   }
 }

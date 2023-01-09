@@ -5,15 +5,18 @@ import { CommandValidationFilter } from 'src/shared/filters/command-validation.f
 import { BotMiddleware } from 'src/shared/middlewares/bot.middleware'
 import { BotService } from './bot.service'
 import {
+  AddressCommand,
   AlertFeeCommand,
   AlertPriceCommand,
+  AlertTxCommand,
   BlockchainCommand,
   BTCCommand,
-  OpReturnCommand,
-  AddressCommand,
-  TransactionCommand,
   ConvertCommand,
-  AlertTxCommand,
+  MyAlertFeeCommand,
+  MyAlertPriceCommand,
+  MyAlertTxCommand,
+  OpReturnCommand,
+  TransactionCommand,
 } from './commands'
 import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
@@ -35,15 +38,20 @@ import { FeesCommand } from './commands/fees.command'
 
     // Commands
     AddressCommand,
+    AlertFeeCommand,
+    AlertFeeCommand,
+    AlertPriceCommand,
+    AlertPriceCommand,
+    AlertTxCommand,
     BlockchainCommand,
     BTCCommand,
-    OpReturnCommand,
-    TransactionCommand,
-    AlertPriceCommand,
-    AlertFeeCommand,
     ConvertCommand,
     FeesCommand,
-    AlertTxCommand,
+    MyAlertFeeCommand,
+    MyAlertPriceCommand,
+    MyAlertTxCommand,
+    OpReturnCommand,
+    TransactionCommand,
 
     // Helpers
     NumbersService,

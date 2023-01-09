@@ -64,4 +64,19 @@ export class PricesServiceRepository {
       ),
     )
   }
+
+  listAlertPrice({ userId }): Promise<any> {
+    const webhookUrl = `${this.webhookUrl}/alert-price/${userId}`
+    const url = `${this.baseUrl}/alert-price?webhookUrl=${webhookUrl}`
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }

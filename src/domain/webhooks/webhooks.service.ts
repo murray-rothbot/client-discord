@@ -22,7 +22,7 @@ export class WebhooksService {
         currency === 'USD'
           ? this.numbersService.formatterUSD.format(alertPrice.currentPrice)
           : this.numbersService.formatterBRL.format(alertPrice.currentPrice)
-      const side = above ? 'Higher or equal then:\n🔼 ' : 'Lower or equal  then\n🔽 '
+      const side = above ? 'Higher or equal then:\n📈 ' : 'Lower or equal then\n📉 '
       const flag = currency === 'USD' ? '🇺🇸' : '🇧🇷'
       const priceAlert =
         currency === 'USD'
@@ -47,7 +47,7 @@ export class WebhooksService {
           iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
         })
         .setTimestamp(new Date())
-        .setColor(0xff9900)
+        .setColor(0x1eff00)
 
       user.send({
         embeds: [embed],
@@ -65,8 +65,16 @@ export class WebhooksService {
       const fields = []
       fields.push({
         name: 'Your alert fee was reached!',
-        value: `**\nLower or equal then:\n🔽 ${fee} sats/vbyte\n\nCurrent Fee:\n${fees.data.fastestFee} sats/vbyte\n**`,
+        value: `**\nLower or equal then:**\n⬇️ ${fee} sats/vByte\n\n**Current Fee:**\n${fees.data.fastestFee} sats/vByte\n`,
       })
+
+      if (fee == 1) {
+        fields.push({
+          name: '\u200B\nGreat moment to:',
+          value: '* Do a coinjoin\n* Consolidate your UTXOs\n* Open a Lightning Channel',
+          inline: false,
+        })
+      }
 
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -80,7 +88,7 @@ export class WebhooksService {
           iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
         })
         .setTimestamp(new Date())
-        .setColor(0xff9900)
+        .setColor(0x1eff00)
 
       user.send({
         embeds: [embed],
@@ -128,7 +136,7 @@ export class WebhooksService {
           iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
         })
         .setTimestamp(new Date())
-        .setColor(0xff9900)
+        .setColor(0x1eff00)
 
       user.send({
         embeds: [embed],
