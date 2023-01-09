@@ -8,7 +8,6 @@ import {
 import { TransformPipe } from '@discord-nestjs/common'
 import { Injectable } from '@nestjs/common'
 import { MyAlertFeeDTO } from '../dto'
-import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../repositories'
 
 @Command({
@@ -18,10 +17,7 @@ import { BlockchainServiceRepository } from '../repositories'
 @UsePipes(TransformPipe)
 @Injectable()
 export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDTO> {
-  constructor(
-    private readonly blockchainRepository: BlockchainServiceRepository,
-    private readonly numbersService: NumbersService,
-  ) {}
+  constructor(private readonly blockchainRepository: BlockchainServiceRepository) {}
 
   async handler(
     @Payload() dto: MyAlertFeeDTO,
@@ -51,46 +47,42 @@ export class MyAlertFeeCommand implements DiscordTransformedCommand<MyAlertFeeDT
       ],
     }
 
-    const userId = interaction.user.id
-    const { data: alerts } = await this.blockchainRepository.listAlertFee({ userId })
+    try {
+      const userId = interaction.user.id
+      const { data: alerts } = await this.blockchainRepository.listAlertFee({ userId })
 
-    const fields = response.embeds[0].fields
-    const description = []
+      const fields = response.embeds[0].fields
+      const description = []
 
-    if (alerts.length == 0) {
-      fields.push({
-        name: 'No fee alerts scheduled.',
-        value: 'Use `/alert-fee` to schedule one.',
-      })
-    } else if (alerts.length > 1) {
-      description.push(
-        'You will receive an alert when the fee reaches\n**Lower or equal then:**\n\n',
-      )
-    }
-
-    for (const data of alerts) {
-      const currentPrice =
-        data.currency === 'USD'
-          ? this.numbersService.formatterUSD.format(data.currentPrice)
-          : this.numbersService.formatterBRL.format(data.currentPrice)
-      const side = data.above ? '🔼 Higher or equal then' : '🔽 Lower or equal then'
-      const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
-      const priceAlert =
-        data.currency === 'USD'
-          ? this.numbersService.formatterUSD.format(data.price)
-          : this.numbersService.formatterBRL.format(data.price)
-
-      if (alerts.length == 1) {
+      if (alerts.length == 0) {
         fields.push({
-          name: 'You will receive an alert when the fee reaches',
-          value: `**\nLower or equal then:\n🔽 ${data.fee} sats/vbyte\n**`,
+          name: 'No fee alerts scheduled.',
+          value: 'Use `/alert-fee` to schedule one.',
         })
-      } else {
-        description.push(`🔔 🔽 ${data.fee} sats/vbyte\n`)
+      } else if (alerts.length > 1) {
+        description.push(
+          'You will receive an alert when the fee reaches\n**Lower or equal then:**\n\n',
+        )
       }
-    }
-    if (alerts.length > 1) {
-      response.embeds[0].description = description.join('')
+
+      for (const data of alerts) {
+        if (alerts.length == 1) {
+          fields.push({
+            name: 'You will receive an alert when the fee reaches',
+            value: `**\nLower or equal then:\n⬇️ ${data.fee} sats/vByte\n**`,
+          })
+        } else {
+          description.push(`⬇️ ${data.fee} sats/vByte\n`)
+        }
+      }
+      if (alerts.length > 1) {
+        response.embeds[0].description = description.join('')
+      }
+    } catch (err) {
+      console.error(err)
+
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'Something went wrong'
     }
 
     return response
