@@ -51,53 +51,81 @@ export class MyAlertPriceCommand implements DiscordTransformedCommand<MyAlertPri
       ],
     }
 
-    const userId = interaction.user.id
-    const { data: alerts } = await this.pricesServiceRepository.listAlertPrice({ userId })
-
-    const fields = response.embeds[0].fields
-
-    if (alerts.length == 0) {
-      fields.push({
-        name: 'No price alerts scheduled.',
-        value: 'Use `\\alert-price` to schedule one.',
+    try {
+      // get prices
+      const { data: lastPriceBRL } = await this.pricesServiceRepository.getTicker({
+        symbol: 'BTCBRL',
       })
-    } else if (alerts.length > 1) {
-      fields.push({
-        name: 'You will receive an alert when the price reaches',
-        value: '\u200B',
+      const { data: lastPriceUSD } = await this.pricesServiceRepository.getTicker({
+        symbol: 'BTCUSD',
       })
-    }
 
-    for (const data of alerts) {
-      const currentPrice =
-        data.currency === 'USD'
-          ? this.numbersService.formatterUSD.format(data.currentPrice)
-          : this.numbersService.formatterBRL.format(data.currentPrice)
-      const side = data.above ? '🔼 Higher or equal then' : '🔽 Lower or equal then'
-      const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
-      const priceAlert =
-        data.currency === 'USD'
-          ? this.numbersService.formatterUSD.format(data.price)
-          : this.numbersService.formatterBRL.format(data.price)
+      const lastPriceBRLFormatted = this.numbersService.formatterBRL.format(lastPriceBRL.price)
+      const lastPriceUSDFormatted = this.numbersService.formatterUSD.format(lastPriceUSD.price)
+      const currentPriceDescription = []
+      currentPriceDescription.push(`**Current price of Bitcoin**\n`)
 
-      if (alerts.length == 1) {
+      const userId = interaction.user.id
+      const { data: alerts } = await this.pricesServiceRepository.listAlertPrice({ userId })
+
+      const description = []
+      const fields = response.embeds[0].fields
+
+      if (alerts.length == 0) {
         fields.push({
-          name: 'You will receive an alert when the price reaches',
-          value: `**\n${side}\n${flag} ${priceAlert}\n\nCurrent Price:\n${flag} ${currentPrice}**`,
+          name: 'No price alerts scheduled.',
+          value: 'Use `/alert-price` to schedule one.',
         })
-      } else {
-        fields.push({
-          name: `${flag} ${priceAlert}`,
-          value: `${side}`,
-          inline: true,
-        })
+      } else if (alerts.length > 1) {
+        description.push(`**You will receive an alert when the price reaches**\n`)
       }
-    }
 
-    if (alerts.length > 3 && alerts.length % 3 != 0) {
-      for (let i = 0; i < 3 - (alerts.length % 3); i++) {
-        fields.push({ name: `\u200B`, value: `\u200B`, inline: true })
+      let showCurrentPriceUSD = false
+      let showCurrentPriceBRL = false
+      for (const data of alerts) {
+        const currentPrice =
+          data.currency === 'USD'
+            ? this.numbersService.formatterUSD.format(data.currentPrice)
+            : this.numbersService.formatterBRL.format(data.currentPrice)
+        const side = data.above ? '📈' : '📉'
+        const flag = data.currency === 'USD' ? '🇺🇸' : '🇧🇷'
+        const priceAlert =
+          data.currency === 'USD'
+            ? this.numbersService.formatterUSD.format(data.price)
+            : this.numbersService.formatterBRL.format(data.price)
+
+        if (alerts.length == 1) {
+          fields.push({
+            name: 'You will receive an alert when the price reaches',
+            value: `**\n${side} ${flag} ${priceAlert}\n\nCurrent Price:\n${flag} ${currentPrice}**`,
+          })
+        } else {
+          if (data.currency === 'USD') {
+            showCurrentPriceUSD = true
+          }
+          if (data.currency === 'BRL') {
+            showCurrentPriceBRL = true
+          }
+          description.push(`${side} ${flag} ${priceAlert}\n`)
+        }
       }
+      if (showCurrentPriceUSD) {
+        currentPriceDescription.push(`🇺🇸 ${lastPriceUSDFormatted}\n`)
+      }
+      if (showCurrentPriceBRL) {
+        currentPriceDescription.push(`🇧🇷 ${lastPriceBRLFormatted}\n`)
+      }
+
+      if (alerts.length > 1) {
+        response.embeds[0].description = `${currentPriceDescription.join('')}\n${description.join(
+          '',
+        )}`
+      }
+    } catch (err) {
+      console.error(err)
+
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'Something went wrong'
     }
 
     return response
