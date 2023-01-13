@@ -6,6 +6,8 @@ import {
   AlertPriceRequestDto,
   AlertTxBodyDto,
   AlertTxRequestDto,
+  BlockBodyDto,
+  PriceBodyDto,
 } from './dto'
 import { WebhooksService } from './webhooks.service'
 
@@ -41,7 +43,12 @@ export class WebhooksController {
   }
 
   @Post('/new-block')
-  updateBlocks(@Body() blockDto: AlertTxBodyDto) {
-    this.webhooksService.updateActivity(blockDto)
+  updateNewBlock(@Body() blockDto: BlockBodyDto) {
+    this.webhooksService.updateNewBlock(blockDto)
+  }
+
+  @Post('/new-price')
+  updateNewPrice(@Body() priceDto: PriceBodyDto[]) {
+    this.webhooksService.updateNewPrice(priceDto)
   }
 }

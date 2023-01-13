@@ -3,7 +3,13 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Client, EmbedBuilder } from 'discord.js'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../bot/repositories/blockchainservice.repository'
-import { AlertPriceBodyDto, AlertFeeBodyDto, AlertTxBodyDto } from './dto'
+import {
+  AlertPriceBodyDto,
+  AlertFeeBodyDto,
+  AlertTxBodyDto,
+  PriceBodyDto,
+  BlockBodyDto,
+} from './dto'
 
 @Injectable()
 export class WebhooksService {
@@ -153,10 +159,43 @@ export class WebhooksService {
     return true
   }
 
-  async updateActivity(block: any) {
+  async updateNewBlock(block: BlockBodyDto) {
     if (block && block.height) {
       this.client.user.setActivity(`New Block: ${block.height}`)
       this.logger.debug(`NEW WEBHOOK - New Block: ${block.height}`)
+    }
+  }
+
+  async updateNewPrice(tickers: PriceBodyDto[]) {
+    let lastPriceUsd = 0
+    let lastPriceBrl = 0
+    let priceChangePercentUsd = 0
+    let priceChangePercentBrl = 0
+
+    tickers.map((data) => {
+      if (data.symbol === 'BTCUSDT') {
+        lastPriceUsd = parseFloat(data.price)
+        priceChangePercentUsd = parseFloat(data.change24h)
+      } else if (data.symbol === 'BTCBRL') {
+        lastPriceBrl = parseFloat(data.price)
+        priceChangePercentBrl = parseFloat(data.change24h)
+      }
+    })
+
+    // check if both prices are available
+    if (lastPriceUsd > 0 && lastPriceBrl > 0) {
+      const priceChangeUSD = priceChangePercentUsd <= 0 ? '▼' : '▲'
+      const priceChangeBRL = priceChangePercentBrl <= 0 ? '▼' : '▲'
+      const msg = `${priceChangeUSD}$${this.numbersService.kFormatter(
+        lastPriceUsd,
+      )} ${priceChangeBRL}R$${this.numbersService.kFormatter(lastPriceBrl)}`
+      const status = priceChangePercentUsd <= 0 ? 'dnd' : 'online'
+
+      this.client.user.setStatus(status)
+      this.client.user.setActivity(msg)
+      this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
+    } else {
+      this.logger.error(`Update presence Tickers failed.`)
     }
   }
 }

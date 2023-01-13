@@ -1,6 +1,4 @@
-import { IsString } from 'class-validator'
-
-export interface AlertTxBodyDto {
+export interface BlockBodyDto {
   extras: {
     reward: number
     coinbaseTx: any
