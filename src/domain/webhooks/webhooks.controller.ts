@@ -41,7 +41,7 @@ export class WebhooksController {
   }
 
   @Post('/new-block')
-  updateBlocks(@Body() blockDto: any) {
+  updateBlocks(@Body() blockDto: AlertTxBodyDto) {
     this.webhooksService.updateActivity(blockDto)
   }
 }
