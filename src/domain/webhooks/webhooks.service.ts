@@ -1,5 +1,5 @@
 import { InjectDiscordClient } from '@discord-nestjs/core'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Client, EmbedBuilder } from 'discord.js'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../bot/repositories/blockchainservice.repository'
@@ -7,6 +7,7 @@ import { AlertPriceBodyDto, AlertFeeBodyDto, AlertTxBodyDto } from './dto'
 
 @Injectable()
 export class WebhooksService {
+  private readonly logger = new Logger(WebhooksService.name)
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
@@ -54,6 +55,8 @@ export class WebhooksService {
       })
     })
 
+    this.logger.debug(`NEW WEBHOOK - Alert Price`)
+
     return true
   }
 
@@ -94,6 +97,8 @@ export class WebhooksService {
         embeds: [embed],
       })
     })
+
+    this.logger.debug(`NEW WEBHOOK - Alert Fee`)
 
     return true
   }
@@ -143,12 +148,15 @@ export class WebhooksService {
       })
     })
 
+    this.logger.debug(`NEW WEBHOOK - Alert Tx`)
+
     return true
   }
 
   async updateActivity(block: any) {
     if (block && block.height) {
       this.client.user.setActivity(`New Block: ${block.height}`)
+      this.logger.debug(`NEW WEBHOOK - New Block: ${block.height}`)
     }
   }
 }
