@@ -39,4 +39,9 @@ export class WebhooksController {
     if (sent) return { message: 'OK' }
     return { message: 'NOK' }
   }
+
+  @Post('/new-block')
+  updateBlocks(@Body() blockDto: any) {
+    this.webhooksService.updateActivity(blockDto)
+  }
 }

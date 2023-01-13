@@ -145,4 +145,10 @@ export class WebhooksService {
 
     return true
   }
+
+  async updateActivity(block: any) {
+    if (block && block.height) {
+      this.client.user.setActivity(`New Block: ${block.height}`)
+    }
+  }
 }
