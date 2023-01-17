@@ -18,7 +18,7 @@ export class MurrayServiceRepository {
   getInvoiceTip({ num_satoshis, user }: InvoiceTip): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
-      client: 'discord',
+      webhook: `${this.webhookUrl}/tip/${user.id}`,
       user: JSON.stringify(user),
       num_satoshis,
     }
@@ -37,7 +37,7 @@ export class MurrayServiceRepository {
   getInvoiceOpReturn({ text, user }): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/op-return`
     const bodyData = {
-      client: 'discord',
+      webhook: `${this.webhookUrl}/op-return/${user.id}`,
       user: JSON.stringify(user),
       text,
     }
