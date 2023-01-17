@@ -15,10 +15,15 @@ import {
   MyAlertFeeCommand,
   MyAlertPriceCommand,
   MyAlertTxCommand,
-  OpReturnCommand,
+  // OpReturnCommand,
+  TipCommand,
   TransactionCommand,
 } from './commands'
-import { BlockchainServiceRepository, PricesServiceRepository } from './repositories'
+import {
+  BlockchainServiceRepository,
+  MurrayServiceRepository,
+  PricesServiceRepository,
+} from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { FeesCommand } from './commands/fees.command'
 
@@ -35,6 +40,7 @@ import { FeesCommand } from './commands/fees.command'
     // Data Providers
     BlockchainServiceRepository,
     PricesServiceRepository,
+    MurrayServiceRepository,
 
     // Commands
     AddressCommand,
@@ -50,8 +56,9 @@ import { FeesCommand } from './commands/fees.command'
     MyAlertFeeCommand,
     MyAlertPriceCommand,
     MyAlertTxCommand,
-    OpReturnCommand,
+    // OpReturnCommand,
     TransactionCommand,
+    TipCommand,
 
     // Helpers
     NumbersService,
