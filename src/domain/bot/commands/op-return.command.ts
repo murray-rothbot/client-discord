@@ -13,7 +13,8 @@ import {
 import { IsModalInteractionGuard } from '../../../shared/guards/modal-interaction.guard'
 import { ModalFieldsTransformPipe } from '../../../shared/pipes/modal.fields.transform.pipe'
 import { OpReturnDTO } from '../dto/opreturn.dto'
-
+import * as QRCode from 'qrcode'
+import { MurrayServiceRepository } from '../repositories'
 @Command({
   name: 'opreturn',
   description: 'Write data to the blockchain',
@@ -24,13 +25,15 @@ export class OpReturnCommand implements DiscordCommand {
   private readonly opReturnModalId = 'opreturnModal'
   private readonly msgComponentId = 'opreturn_message'
 
+  constructor(private readonly murrayRepository: MurrayServiceRepository) {}
+
   async handler(interaction: CommandInteraction): Promise<void> {
-    const modal = new ModalBuilder().setTitle('Opreturn Message').setCustomId(this.opReturnModalId)
+    const modal = new ModalBuilder().setTitle('Op-Return Message').setCustomId(this.opReturnModalId)
 
     const msgInputComponent = new TextInputBuilder()
       .setCustomId(this.msgComponentId)
       .setLabel('Add your message here')
-      .setMaxLength(100)
+      .setMaxLength(80)
       .setStyle(TextInputStyle.Paragraph)
 
     const rows = [msgInputComponent].map((component) =>
@@ -46,13 +49,87 @@ export class OpReturnCommand implements DiscordCommand {
   @UsePipes(ModalFieldsTransformPipe)
   @UseGuards(IsModalInteractionGuard)
   async onModuleSubmit(@Payload() dto: OpReturnDTO, modal: ModalSubmitInteraction) {
-    this.logger.log(dto)
-    this.logger.log(`Modal ${modal.customId} submit`)
+    const opReturnBytes = new TextEncoder().encode(dto.opreturn_message).length
+    const response = {
+      tts: false,
+      fetchReply: true,
+      embeds: [
+        {
+          title: '',
+          description: 'We need your help to keep the lights on!',
+          color: 0xff9900,
+          fields: [],
+          author: {
+            name: `Murray Rothbot - OP Return Service`,
+            url: `https://murrayrothbot.com/`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
+          footer: {
+            text: `Powered by Murray Rothbot`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
+        },
+      ],
+      files: [],
+    }
 
     if (modal.customId !== this.opReturnModalId) return
 
-    await modal.reply(
-      `Your message has been submitted.` + codeBlock('markdown', dto.opreturn_message),
-    )
+    const fields = response.embeds[0].fields
+
+    fields.push({
+      name: ':receipt: Bytes (max 83):',
+      value: `${opReturnBytes} bytes`,
+    })
+    fields.push({
+      name: ':newspaper2: Message:',
+      value: `${dto.opreturn_message}`,
+    })
+
+    // validate bytes
+    if (opReturnBytes > 83) {
+      response.embeds[0].color = 0xff0000
+      response.embeds[0].description = `Your message is too long. Please shorten it to 83 bytes or less.`
+
+      await modal.reply(response)
+      return
+    }
+
+    const invoice = await this.murrayRepository.getInvoiceOpReturn({
+      text: dto.opreturn_message,
+      user: modal.user,
+    })
+
+    if (invoice === null) {
+      response.embeds[0].title = 'ERROR'
+      response.embeds[0].description = 'We could not generate an invoice, try again later!'
+
+      await modal.reply(response)
+      return
+    }
+
+    const {
+      data: { payment_request, num_satoshis },
+    } = invoice
+
+    fields.push({
+      name: ':moneybag: Amount (sats):',
+      value: `${num_satoshis} sats`,
+    })
+    fields.push({
+      name: ':receipt: Payment Request:',
+      value: `${payment_request}`,
+    })
+
+    const fileBuff = await QRCode.toDataURL(payment_request)
+      .then((url: string) => {
+        return Buffer.from(url.split(',')[1], 'base64')
+      })
+      .catch((err: any) => {
+        console.error(err)
+      })
+    response.files = [fileBuff]
+
+    await modal.reply(response)
   }
 }

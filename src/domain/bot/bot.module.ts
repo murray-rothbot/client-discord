@@ -15,7 +15,7 @@ import {
   MyAlertFeeCommand,
   MyAlertPriceCommand,
   MyAlertTxCommand,
-  // OpReturnCommand,
+  OpReturnCommand,
   TipCommand,
   TransactionCommand,
 } from './commands'
@@ -56,7 +56,7 @@ import { FeesCommand } from './commands/fees.command'
     MyAlertFeeCommand,
     MyAlertPriceCommand,
     MyAlertTxCommand,
-    // OpReturnCommand,
+    OpReturnCommand,
     TransactionCommand,
     TipCommand,
 

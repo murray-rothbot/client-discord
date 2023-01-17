@@ -18,9 +18,9 @@ export class MurrayServiceRepository {
   getInvoiceTip({ num_satoshis, user }: InvoiceTip): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
-      num_satoshis,
-      memo: 'Tip Murray Rothbot',
+      client: 'discord',
       user: JSON.stringify(user),
+      num_satoshis,
     }
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
@@ -34,41 +34,22 @@ export class MurrayServiceRepository {
     )
   }
 
-  // getInvoiceOpReturn({ num_satoshis, memo, user }): Promise<any> {
-  //   const url = `${this.baseUrl}/payment/tip`
-  //   const bodyData = {
-  //     num_satoshis: 100,
-  //     memo: 'Tip Murray Rothbot',
-  //     user: 'murray',
-  //   }
-  //   return lastValueFrom(
-  //     this.httpService.post(url, bodyData).pipe(
-  //       map((response: AxiosResponse<any>) => {
-  //         return response.data
-  //       }),
-  //       catchError(async () => {
-  //         return null
-  //       }),
-  //     ),
-  //   )
-  // }
-
-  // getInvoiceProofOfExistence({ num_satoshis, memo, user }): Promise<any> {
-  //   const url = `${this.baseUrl}/payment/tip`
-  //   const bodyData = {
-  //     num_satoshis: 100,
-  //     memo: 'Tip Murray Rothbot',
-  //     user: 'murray',
-  //   }
-  //   return lastValueFrom(
-  //     this.httpService.post(url, bodyData).pipe(
-  //       map((response: AxiosResponse<any>) => {
-  //         return response.data
-  //       }),
-  //       catchError(async () => {
-  //         return null
-  //       }),
-  //     ),
-  //   )
-  // }
+  getInvoiceOpReturn({ text, user }): Promise<any> {
+    const url = `${this.baseUrl}/payment/invoice/op-return`
+    const bodyData = {
+      client: 'discord',
+      user: JSON.stringify(user),
+      text,
+    }
+    return lastValueFrom(
+      this.httpService.post(url, bodyData).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
