@@ -173,12 +173,14 @@ export class WebhooksService {
     let priceChangePercentBrl = 0
 
     tickers.map((data) => {
-      if (data.symbol === 'BTCUSDT') {
-        lastPriceUsd = parseFloat(data.price)
-        priceChangePercentUsd = parseFloat(data.change24h)
-      } else if (data.symbol === 'BTCBRL') {
-        lastPriceBrl = parseFloat(data.price)
-        priceChangePercentBrl = parseFloat(data.change24h)
+      if (data?.symbol) {
+        if (data.symbol === 'BTCUSDT') {
+          lastPriceUsd = parseFloat(data.price)
+          priceChangePercentUsd = parseFloat(data.change24h)
+        } else if (data.symbol === 'BTCBRL') {
+          lastPriceBrl = parseFloat(data.price)
+          priceChangePercentBrl = parseFloat(data.change24h)
+        }
       }
     })
 
