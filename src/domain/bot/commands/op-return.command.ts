@@ -78,7 +78,7 @@ export class OpReturnCommand implements DiscordCommand {
     const fields = response.embeds[0].fields
 
     fields.push({
-      name: ':receipt: Bytes (max 83):',
+      name: ':receipt: Bytes (max 80):',
       value: `${opReturnBytes} bytes`,
     })
     fields.push({
@@ -87,7 +87,7 @@ export class OpReturnCommand implements DiscordCommand {
     })
 
     // validate bytes
-    if (opReturnBytes > 83) {
+    if (opReturnBytes > 80) {
       response.embeds[0].color = 0xff0000
       response.embeds[0].description = `Your message is too long. Please shorten it to 83 bytes or less.`
 
