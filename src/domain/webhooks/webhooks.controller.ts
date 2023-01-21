@@ -51,4 +51,10 @@ export class WebhooksController {
   updateNewPrice(@Body() priceDto: PriceBodyDto[]) {
     this.webhooksService.updateNewPrice(priceDto)
   }
+
+  @Post('/op-return/:userId')
+  sendOpReturn(@Param() params: AlertTxRequestDto, @Body() opreturnDto: any) {
+    const { userId } = params
+    this.webhooksService.sendOpReturn(userId, opreturnDto)
+  }
 }

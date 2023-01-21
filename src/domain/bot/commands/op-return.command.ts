@@ -96,7 +96,7 @@ export class OpReturnCommand implements DiscordCommand {
     }
 
     const invoice = await this.murrayRepository.getInvoiceOpReturn({
-      text: dto.opreturn_message,
+      message: dto.opreturn_message,
       user: modal.user,
     })
 

@@ -34,12 +34,12 @@ export class MurrayServiceRepository {
     )
   }
 
-  getInvoiceOpReturn({ text, user }): Promise<any> {
+  getInvoiceOpReturn({ message, user }): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/op-return`
     const bodyData = {
       webhook: `${this.webhookUrl}/op-return/${user.id}`,
       user: JSON.stringify(user),
-      text,
+      message,
     }
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(

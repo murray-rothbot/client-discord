@@ -200,4 +200,44 @@ export class WebhooksService {
       this.logger.error(`Update presence Tickers failed.`)
     }
   }
+
+  sendOpReturn(userId: string, opReturn: any) {
+    this.client.users.fetch(userId).then(async (user) => {
+      const fields = []
+      fields.push({
+        name: ':receipt: Transaction ID:',
+        value: `${opReturn.txId}`,
+      })
+      fields.push({
+        name: ':link: Mempool Space Link:',
+        value: `${opReturn.url}`,
+      })
+      fields.push({
+        name: ':newspaper2: Message:',
+        value: `${opReturn.message}`,
+      })
+
+      const embed = new EmbedBuilder()
+        .setAuthor({
+          name: `🔔 OP-Return Confirmation 🔔`,
+          url: `https://murrayrothbot.com/`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setFields(fields)
+        .setFooter({
+          text: `Powered by Murray Rothbot`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setTimestamp(new Date())
+        .setColor(0x1eff00)
+
+      user.send({
+        embeds: [embed],
+      })
+    })
+
+    this.logger.debug(`NEW WEBHOOK - OP-Return: ${opReturn.txId}`)
+
+    return true
+  }
 }
