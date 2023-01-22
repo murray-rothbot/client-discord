@@ -240,4 +240,36 @@ export class WebhooksService {
 
     return true
   }
+
+  sendTip(userId: string, tip: any) {
+    this.client.users.fetch(userId).then(async (user) => {
+      const fields = []
+      fields.push({
+        name: '⚡ Donation:',
+        value: `**${tip.satoshis}** sats`,
+      })
+
+      const embed = new EmbedBuilder()
+        .setDescription('New donation received!\nThank you for your support!\n❤️')
+        .setAuthor({
+          name: `⚡ Murray Rothbot Tips ⚡`,
+          url: `https://murrayrothbot.com/`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setFields(fields)
+        .setFooter({
+          text: `Powered by Murray Rothbot`,
+          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
+        })
+        .setTimestamp(new Date())
+        .setColor(0x1eff00)
+
+      user.send({
+        embeds: [embed],
+      })
+      this.logger.debug(`NEW WEBHOOK - OP-Return: ${user.username} - ${tip.satoshis}`)
+    })
+
+    return true
+  }
 }

@@ -53,8 +53,14 @@ export class WebhooksController {
   }
 
   @Post('/op-return/:userId')
-  sendOpReturn(@Param() params: AlertTxRequestDto, @Body() opreturnDto: any) {
+  sendOpReturn(@Param() params: any, @Body() opreturnDto: any) {
     const { userId } = params
     this.webhooksService.sendOpReturn(userId, opreturnDto)
+  }
+
+  @Post('/tip/:userId')
+  sendTip(@Param() params: any, @Body() opreturnDto: any) {
+    const { userId } = params
+    this.webhooksService.sendTip(userId, opreturnDto)
   }
 }
