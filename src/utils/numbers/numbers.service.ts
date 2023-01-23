@@ -6,10 +6,14 @@ import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class NumbersService {
-  kFormatter(num: number): any {
-    return Math.abs(num) > 999
-      ? (Math.sign(num) * (Math.abs(num) / 1000)).toFixed(1) + 'k'
-      : Math.sign(num) * Math.abs(num)
+  kFormatter(num: number, formatter?: Intl.NumberFormat): any {
+    const unity = ['', 'k', 'M', 'B', 'T']
+    const digits = Math.floor(Math.log10(Math.abs(num)))
+    const reduce_factor = Math.floor(digits / 3)
+    const value = Math.abs(num) / 10 ** (reduce_factor * 3)
+    const formatted = (formatter || this.formatter).format(value)
+
+    return `${num < 0 ? '-' : ''}${formatted}${unity[reduce_factor]}`
   }
 
   formatter = new Intl.NumberFormat('pt-BR', {
