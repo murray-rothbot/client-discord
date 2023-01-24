@@ -12,6 +12,7 @@ import {
   BlockchainCommand,
   BTCCommand,
   ConvertCommand,
+  MarketInfoCommand,
   MyAlertFeeCommand,
   MyAlertPriceCommand,
   MyAlertTxCommand,
@@ -53,12 +54,13 @@ import { FeesCommand } from './commands/fees.command'
     BTCCommand,
     ConvertCommand,
     FeesCommand,
+    MarketInfoCommand,
     MyAlertFeeCommand,
     MyAlertPriceCommand,
     MyAlertTxCommand,
     OpReturnCommand,
-    TransactionCommand,
     TipCommand,
+    TransactionCommand,
 
     // Helpers
     NumbersService,
