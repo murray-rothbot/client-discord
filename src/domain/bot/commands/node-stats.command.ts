@@ -68,10 +68,13 @@ export class NodeStatsCommand implements DiscordTransformedCommand<NodeDto> {
 
       const flag = iso_code ? `:flag_${iso_code.toLowerCase()}:` : ''
       embed.title = `${flag} ${alias}`
-      fields.push({ name: '🔑 Public Key', value: public_key })
+      fields.push({
+        name: '🔑 Public Key',
+        value: `[${public_key}](https://mempool.space/lightning/node/${public_key})`,
+      })
 
       fields.push({ name: '🔀 Channels', value: format(active_channel_count), inline: true })
-      fields.push({ name: '🪫 Capacity', value: `${format(capacity)} sats`, inline: true })
+      fields.push({ name: '🪫 Capacity', value: `⚡${format(capacity)}`, inline: true })
       fields.push({ name: '\u200B', value: '\u200B', inline: true })
 
       fields.push({ name: '👁️ First seen', value: `<t:${first_seen}:R>`, inline: true })
@@ -80,9 +83,9 @@ export class NodeStatsCommand implements DiscordTransformedCommand<NodeDto> {
 
       fields.push({ name: '\u200B', value: 'Top channels by capacity:' })
 
-      const peers = channels.map(x => x.node.alias || '').join('\n')
-      const capacities = channels.map(x => `${format(x.capacity)} sats`).join('\n')
-      const fees = channels.map(x => `${format(x.fee_rate)} ppm`).join('\n')
+      const peers = channels.map((x) => x.node.alias || '').join('\n')
+      const capacities = channels.map((x) => `⚡${format(x.capacity)}`).join('\n')
+      const fees = channels.map((x) => `⚡${format(x.fee_rate)} ppm`).join('\n')
 
       fields.push({ name: '👥 Peer', value: peers, inline: true })
       fields.push({ name: '🪫 Capacity', value: capacities, inline: true })
