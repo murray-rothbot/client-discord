@@ -46,16 +46,16 @@ export class LightningTopCommand implements DiscordCommand {
 
       const medals = ['🥇', '🥈', '🥉']
 
-      fields.push({ name: '\u200B', value: 'By capacity:' })
+      fields.push({ name: '\u200B', value: '_By capacity:_' })
       for (let i = 0; i < 3; i++) {
         fields.push({
           name: `${medals[i]} ${byCapacity[i]['alias']}`,
-          value: `${this.numbersService.formatterSATS.format(byCapacity[i]['capacity'])} sats`,
+          value: `⚡${this.numbersService.formatterSATS.format(byCapacity[i]['capacity'])}`,
           inline: false,
         })
       }
 
-      fields.push({ name: '\u200B', value: 'By channels count:' })
+      fields.push({ name: '\u200B', value: '_By channels count:_' })
       for (let i = 0; i < 3; i++) {
         fields.push({
           name: `${medals[i]} ${byChannels[i]['alias']}`,
