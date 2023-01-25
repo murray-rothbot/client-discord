@@ -39,7 +39,6 @@ export class LightningStatsCommand implements DiscordCommand {
 
     try {
       const { data } = await this.lightningRepository.getNetworkStatistics()
-      console.log(data)
 
       const {
         node_count,
