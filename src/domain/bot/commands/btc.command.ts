@@ -3,6 +3,7 @@ import { CommandInteraction } from 'discord.js'
 import { Injectable } from '@nestjs/common'
 import { PricesServiceRepository } from '../repositories/pricesservice.repository'
 import { BtcDTO } from '../dto/btc.dto'
+import { NumbersService } from 'src/utils/numbers/numbers.service'
 
 @Command({
   name: 'btc',
@@ -10,7 +11,10 @@ import { BtcDTO } from '../dto/btc.dto'
 })
 @Injectable()
 export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
-  constructor(private readonly pricesRepository: PricesServiceRepository) {}
+  constructor(
+    private readonly pricesRepository: PricesServiceRepository,
+    private readonly numbersService: NumbersService,
+  ) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
     const response = {
@@ -39,11 +43,11 @@ export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
 
     try {
       const tickers = [
-        { currency: 'USD', unity: '$', flag: '🇺🇸' },
-        { currency: 'BRL', unity: 'R$', flag: '🇧🇷' },
+        { currency: 'USD', flag: '🇺🇸' },
+        { currency: 'BRL', flag: '🇧🇷' },
       ]
 
-      for (const { currency, unity, flag } of tickers) {
+      for (const { currency, flag } of tickers) {
         const {
           data: { price, symbol, source, change24h },
         } = await this.pricesRepository.getTicker({
@@ -53,11 +57,15 @@ export class BTCCommand implements DiscordTransformedCommand<BtcDTO> {
         const name = `${flag} ${symbol}`
         const arrow = change24h > 0 ? '🔼' : '🔽'
         const change_str = `${(+change24h).toFixed(2)}%`
-        const price_str = (+price).toLocaleString()
+
+        const price_str =
+          currency === 'USD'
+            ? this.numbersService.formatterUSD.format(+price)
+            : this.numbersService.formatterBRL.format(+price)
 
         response.embeds[0].fields.push({
           name,
-          value: `${arrow} ${change_str}\n${unity} ${price_str}\nSource: ${source}`,
+          value: `${arrow} ${change_str}\n ${price_str}\nSource: ${source}`,
         })
       }
     } catch (err) {

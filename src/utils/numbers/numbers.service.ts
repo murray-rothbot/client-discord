@@ -18,17 +18,22 @@ export class NumbersService {
 
   formatter = new Intl.NumberFormat('pt-BR', {
     style: 'decimal',
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   })
 
   formatterUSD = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })
 
   formatterBRL = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })
 
   formatterBTC = new Intl.NumberFormat('en-US', {
