@@ -19,7 +19,7 @@ export class DifficultyCommand implements DiscordCommand {
       embeds: [
         {
           type: 'rich',
-          title: '🦾 Next Difficult Adjustment',
+          title: 'Next Difficult Adjustment',
           description:
             'In order to ensure bitcoin blocks are discovered roughly every 10 minutes, an automatic system is in place to adjust the difficulty every 2016 blocks depending on how many miners are competing to discover blocks at any given time.',
           color: 0xff9900,
@@ -52,11 +52,19 @@ export class DifficultyCommand implements DiscordCommand {
       const change = (value) => `${arrow(value)} ${value.toFixed(2)}%`
 
       fields.push({
+<<<<<<< HEAD
         name: `🏁 Current Progress - ${2016 - remainingBlocks}/2016 blocks`,
         value: progressBar(progressPercent / 100),
       })
       fields.push({
         name: '🗓️ Estimated Date',
+=======
+        name: `Current Progress - ${2016 - remainingBlocks}/2016 blocks`,
+        value: progressBar(progressPercent / 100),
+      })
+      fields.push({
+        name: 'Estimated Date',
+>>>>>>> d804e82 (feat: command difficulty)
         value: `<t:${Math.floor(estimatedRetargetDate / 1000)}:R>`,
         inline: true,
       })
