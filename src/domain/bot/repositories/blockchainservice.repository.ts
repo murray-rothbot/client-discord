@@ -3,25 +3,31 @@ import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
+import { ServiceRepository } from './service.repository'
 
 @Injectable()
-export class BlockchainServiceRepository {
+export class BlockchainServiceRepository extends ServiceRepository {
   constructor(
-    private readonly httpService: HttpService,
+    protected readonly httpService: HttpService,
     private readonly cfgService: ConfigService,
-  ) {}
+  ) {
+    super(httpService)
+  }
 
   baseUrl: string = this.cfgService.get<string>('BLOCKCHAIN_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
-  getBlock({ hash = null, height = null }): Promise<any> {
+  getBlock({ hash = null, height = null }): Promise<any> | {} {
     let url = `${this.baseUrl}/block`
 
     if (hash) {
       url = `${url}?hash=${hash}`
     } else if (height) {
+      if (isNaN(height)) return { data: null }
       url = `${url}?height=${height}`
     }
+
+    console.log(url)
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -29,6 +35,7 @@ export class BlockchainServiceRepository {
           return response.data
         }),
         catchError(async () => {
+          console.error(url)
           return null
         }),
       ),
@@ -44,6 +51,7 @@ export class BlockchainServiceRepository {
           return response.data
         }),
         catchError(async () => {
+          console.error(url)
           return null
         }),
       ),

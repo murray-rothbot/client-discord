@@ -1,5 +1,4 @@
 import { Command, DiscordCommand, On, Payload, UsePipes } from '@discord-nestjs/core'
-import { codeBlock } from '@discordjs/formatters'
 import { Injectable, Logger, UseGuards } from '@nestjs/common'
 import {
   ActionRowBuilder,
@@ -73,9 +72,10 @@ export class OpReturnCommand implements DiscordCommand {
       files: [],
     }
 
-    if (modal.customId !== this.opReturnModalId) return
+    const embed = response.embeds[0]
+    const fields = embed.fields
 
-    const fields = response.embeds[0].fields
+    if (modal.customId !== this.opReturnModalId) return
 
     fields.push({
       name: ':receipt: Bytes (max 80):',
@@ -88,8 +88,8 @@ export class OpReturnCommand implements DiscordCommand {
 
     // validate bytes
     if (opReturnBytes > 80) {
-      response.embeds[0].color = 0xff0000
-      response.embeds[0].description = `Your message is too long. Please shorten it to 83 bytes or less.`
+      embed.color = 0xff0000
+      embed.description = `Your message is too long. Please shorten it to 83 bytes or less.`
 
       await modal.reply(response)
       return
@@ -101,8 +101,8 @@ export class OpReturnCommand implements DiscordCommand {
     })
 
     if (invoice === null) {
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'We could not generate an invoice, try again later!'
+      embed.title = 'ERROR'
+      embed.description = 'We could not generate an invoice, try again later!'
 
       await modal.reply(response)
       return

@@ -3,9 +3,10 @@ import { CommandInteraction } from 'discord.js'
 import { Injectable } from '@nestjs/common'
 import { BlockchainServiceRepository, PricesServiceRepository } from '../repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { defaultResponse } from 'src/utils/default-response'
 
 @Command({
-  name: 'marketinfo',
+  name: 'market-cap',
   description: 'Market capitalization information',
 })
 @Injectable()
@@ -17,94 +18,59 @@ export class MarketInfoCommand implements DiscordCommand {
   ) {}
 
   async handler(interaction: CommandInteraction): Promise<{}> {
-    const response = {
-      content: '',
-      tts: false,
-      embeds: [
-        {
-          type: 'rich',
-          title: '💰 Estatística de Mercado',
-          description: '',
-          color: 0xff9900,
-          timestamp: new Date(),
-          fields: [],
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
-          },
-        },
-      ],
+    const response = defaultResponse()
+    const embed = response.embeds[0]
+    const fields = embed.fields
+
+    embed.title = '💰 Market Capitalization'
+
+    const currencies = {
+      btcusd: {
+        singular: 'Dollar',
+        plural: 'Dollars',
+        formatter: this.numbersService.formatterUSD,
+        flag: '🇺🇸',
+      },
+      btcbrl: {
+        singular: 'Real',
+        plural: 'Reais',
+        formatter: this.numbersService.formatterBRL,
+        flag: '🇧🇷',
+      },
     }
 
-    const fields = response.embeds[0].fields
+    const prices = (
+      await Promise.all(Object.keys(currencies).map((symbol) => this.getTicker({ symbol })))
+    ).filter((x) => x.data)
 
-    try {
-      const currencies = {
-        btcusd: {
-          singular: 'Dólar',
-          plural: 'Dólares',
-          formatter: this.numbersService.formatterUSD,
-          flag: '🇺🇸',
-        },
-        btcbrl: {
-          singular: 'Real',
-          plural: 'Reais',
-          formatter: this.numbersService.formatterBRL,
-          flag: '🇧🇷',
-        },
-        // Uncomment when service-price is able to return XAU e XAG prices
-        // btcxau: {
-        //   singular: 'grama',
-        //   plural: 'gramas',
-        //   formatter: (x) => x,
-        //   flag: '🪙',
-        // },
-        // btcxag: {
-        //   singular: 'grama',
-        //   plural: 'gramas',
-        //   formatter: (x) => x,
-        //   flag: '⚪',
-        // },
-      }
+    const {
+      data: { height },
+    } = await this.blockRepository.getBlock({})
+    const supply = this.calculateSupply(height)
 
-      const prices = (
-        await Promise.all(Object.keys(currencies).map((symbol) => this.getTicker({ symbol })))
-      ).filter((x) => x.data)
+    for (const {
+      data: { symbol, price },
+    } of prices) {
+      const { singular, plural, code, formatter, flag } = currencies[symbol.toLowerCase()]
 
-      const {
-        data: { height },
-      } = await this.blockRepository.getBlock({})
-      const supply = this.calculateSupply(height)
+      const sats = Math.round(1e8 / price)
+      const market = Math.round(supply * price)
 
-      for (const {
-        data: { symbol, price },
-      } of prices) {
-        const { singular, plural, code, formatter, flag } = currencies[symbol.toLowerCase()]
-
-        const sats = Math.round(1e8 / price)
-        const market = Math.round(supply * price)
-
-        fields.push({
-          name: `Valor em ${plural}`,
-          value: formatter.format(price),
-          inline: true,
-        })
-        fields.push({
-          name: `Sats por ${singular}`,
-          value: `${this.numbersService.formatterSATS.format(sats)} sats`,
-          inline: true,
-        })
-        fields.push({
-          name: `Valor de Mercado ${flag}`,
-          value: this.numbersService.kFormatter(market, formatter),
-          inline: true,
-        })
-      }
-    } catch (err) {
-      console.error(err)
-
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'Something went wrong'
+      fields.push({
+        name: `${flag} Price in ${plural}`,
+        value: formatter.format(price),
+        inline: true,
+      })
+      fields.push({
+        name: `⚡ Sats per ${singular}`,
+        value: `${this.numbersService.formatterSATS.format(sats)} sats`,
+        inline: true,
+      })
+      fields.push({
+        name: `💰 Market Cap`,
+        value: this.numbersService.kFormatter(market, formatter),
+        inline: true,
+      })
     }
 
     return response

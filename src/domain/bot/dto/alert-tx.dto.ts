@@ -1,5 +1,5 @@
 import { Param, ParamType } from '@discord-nestjs/core'
-import { IsNumber } from 'class-validator'
+import { IsNumber, IsOptional, Length, Min } from 'class-validator'
 
 export class AlertTxDto {
   @Param({
@@ -7,6 +7,7 @@ export class AlertTxDto {
     description: 'Transaction id (hex)',
     required: true,
   })
+  @Length(64, 64)
   transaction: string
 
   @Param({
@@ -16,5 +17,7 @@ export class AlertTxDto {
     type: ParamType.INTEGER,
   })
   @IsNumber()
+  @IsOptional()
+  @Min(1)
   confirmations: number
 }

@@ -1,4 +1,4 @@
-import { TransformPipe } from '@discord-nestjs/common'
+import { TransformPipe, ValidationPipe } from '@discord-nestjs/common'
 import {
   Command,
   DiscordTransformedCommand,
@@ -9,12 +9,13 @@ import {
 import { Injectable } from '@nestjs/common'
 import { BlockchainServiceRepository } from '../repositories'
 import { TransactionDto } from '../dto'
+import { defaultResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'tx',
   description: 'Information about a transaction',
 })
-@UsePipes(TransformPipe)
+@UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class TransactionCommand implements DiscordTransformedCommand<TransactionDto> {
   constructor(private readonly blockRepository: BlockchainServiceRepository) {}
@@ -23,89 +24,75 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
     @Payload() dto: TransactionDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const response = {
-      content: '',
-      tts: false,
-      embeds: [
+    const response = defaultResponse()
+    const embed = response.embeds[0]
+    const fields = embed.fields
+
+    embed.title = '🔀 Transaction'
+
+    const { transaction } = dto
+    const { data } = await this.blockRepository.getTransaction({ transaction })
+
+    if (!data) {
+      throw [
         {
-          type: 'rich',
-          title: '',
-          description: '',
-          color: 0xff9900,
-          timestamp: new Date(),
-          fields: [],
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          property: 'transaction id',
+          constraints: {
+            isValid: 'transaction id must be valid',
           },
         },
-      ],
+      ]
     }
 
-    const fields = response.embeds[0].fields
+    const {
+      vin,
+      vout,
+      size,
+      weight,
+      status: { confirmed, block_hash, block_time },
+    } = data
 
-    try {
-      const { transaction } = dto
+    const vin_total = vin.reduce((total, num) => total + num.prevout?.value, 0)
+    const vout_total = vout.reduce((total, num) => total + num?.value, 0)
+    const fees = vin_total - vout_total
 
-      const { data } = await this.blockRepository.getTransaction({ transaction })
+    const rbf = vin.some((v) => v.sequence < 0xfffffffe)
 
-      const {
-        vin,
-        vout,
-        size,
-        weight,
-        status: { confirmed, block_hash, block_time },
-      } = data
+    fields.push({
+      name: '🧬 Hash:',
+      value: `[${transaction}](https://mempool.space/tx/${transaction})`,
+    })
 
-      const vin_total = vin.reduce((total, num) => total + num.prevout?.value, 0)
-      const vout_total = vout.reduce((total, num) => total + num?.value, 0)
-      const fees = vin_total - vout_total
-
-      const rbf = vin.some((v) => v.sequence < 0xfffffffe)
-
-      fields.push({
-        name: 'Transaction Hex:',
-        value: `🔀 ${transaction}`,
-      })
-
-      fields.push({
-        name: `📥 Inputs:`,
-        value: `${vin.length ? vin.length : 0} (${
-          vin_total ? vin_total?.toLocaleString() : 0
-        } sats)`,
-        inline: true,
-      })
-      fields.push({
-        name: `📤 Outputs: `,
-        value: `${vout.length} (${vout_total.toLocaleString()} sats)`,
-        inline: true,
-      })
-      fields.push({
-        name: `🪙 Fees: `,
-        value: `${fees ? fees.toLocaleString() : 0} sats`,
-        inline: true,
-      })
-      fields.push({
-        name: `📏 Size:`,
-        value: `${size.toLocaleString()} Bytes`,
-        inline: true,
-      })
-      fields.push({
-        name: `📦 Weight: `,
-        value: `${weight.toLocaleString()} WU`,
-        inline: true,
-      })
-      fields.push({
-        name: `✅ Confirmed? `,
-        value: `${confirmed} ${confirmed ? '' : rbf ? '(RBF)' : '(~~RBF~~)'}`,
-        inline: true,
-      })
-    } catch (err) {
-      console.error(err)
-
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'Something went wrong'
-    }
+    fields.push({
+      name: `📥 Inputs:`,
+      value: `${vin.length ? vin.length : 0} (${vin_total ? vin_total?.toLocaleString() : 0} sats)`,
+      inline: true,
+    })
+    fields.push({
+      name: `📤 Outputs: `,
+      value: `${vout.length} (${vout_total.toLocaleString()} sats)`,
+      inline: true,
+    })
+    fields.push({
+      name: `💸 Fees: `,
+      value: `${fees ? fees.toLocaleString() : 0} sats`,
+      inline: true,
+    })
+    fields.push({
+      name: `📏 Size:`,
+      value: `${size.toLocaleString()} Bytes`,
+      inline: true,
+    })
+    fields.push({
+      name: `⚖️ Weight: `,
+      value: `${weight.toLocaleString()} WU`,
+      inline: true,
+    })
+    fields.push({
+      name: `✅ Confirmed? `,
+      value: `${confirmed} ${confirmed ? '' : rbf ? '(RBF)' : '(~~RBF~~)'}`,
+      inline: true,
+    })
 
     return response
   }

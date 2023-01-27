@@ -1,4 +1,4 @@
-import { TransformPipe } from '@discord-nestjs/common'
+import { TransformPipe, ValidationPipe } from '@discord-nestjs/common'
 import {
   Command,
   DiscordTransformedCommand,
@@ -10,12 +10,13 @@ import { Injectable } from '@nestjs/common'
 import { BlockchainServiceRepository } from '../repositories'
 import { AddressDto } from '../dto'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { defaultResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'address',
   description: 'Information about an address',
 })
-@UsePipes(TransformPipe)
+@UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
   constructor(
@@ -27,69 +28,60 @@ export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
     @Payload() dto: AddressDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const response = {
-      content: '',
-      tts: false,
-      embeds: [
+    const response = defaultResponse()
+    const embed = response.embeds[0]
+    const fields = embed.fields
+
+    const { address } = dto
+    const { data } = await this.blockRepository.getAddress({ address })
+
+    if (!data) {
+      throw [
         {
-          type: 'rich',
-          title: '',
-          description: '',
-          color: 0xff9900,
-          timestamp: new Date(),
-          fields: [],
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          property: 'address',
+          constraints: {
+            isValid: 'address must be valid',
           },
         },
-      ],
+      ]
     }
 
-    const fields = response.embeds[0].fields
+    fields.push({
+      name: '🪧 Address',
+      value: `[${address}](https://mempool.space/address/${address})`,
+    })
 
-    try {
-      const { address } = dto
-      response.embeds[0].title = `🪧 ${address}`
+    var {
+      chain_stats: { funded_txo_count, funded_txo_sum, spent_txo_count, spent_txo_sum },
+    } = data
 
-      const data = await this.blockRepository.getAddress({ address })
+    fields.push({ name: '\u200B', value: 'On chain transactions:' })
+    fields.push({
+      name: `📥 Received: ${funded_txo_count}`,
+      value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
+      inline: true,
+    })
+    fields.push({
+      name: `📤 Sent: ${spent_txo_count}`,
+      value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
+      inline: true,
+    })
 
-      var {
-        chain_stats: { funded_txo_count, funded_txo_sum, spent_txo_count, spent_txo_sum },
-      } = data.data
+    var {
+      mempool_stats: { funded_txo_count, funded_txo_sum, spent_txo_count, spent_txo_sum },
+    } = data
 
-      fields.push({ name: '\u200B', value: 'On chain transactions:' })
-      fields.push({
-        name: `📥 Received: ${funded_txo_count}`,
-        value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
-        inline: true,
-      })
-      fields.push({
-        name: `📤 Sent: ${spent_txo_count}`,
-        value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
-        inline: true,
-      })
-
-      var {
-        mempool_stats: { funded_txo_count, funded_txo_sum, spent_txo_count, spent_txo_sum },
-      } = data.data
-
-      fields.push({ name: '\u200B', value: 'Mempool transactions:' })
-      fields.push({
-        name: `📥 Received: ${funded_txo_count}`,
-        value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
-        inline: true,
-      })
-      fields.push({
-        name: `📤 Sent: ${spent_txo_count}`,
-        value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
-        inline: true,
-      })
-    } catch (err) {
-      console.error(err)
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'Something went wrong'
-    }
+    fields.push({ name: '\u200B', value: 'Mempool transactions:' })
+    fields.push({
+      name: `📥 Received: ${funded_txo_count}`,
+      value: `Total: ${this.numbersService.formatterSATS.format(funded_txo_sum)} sats`,
+      inline: true,
+    })
+    fields.push({
+      name: `📤 Sent: ${spent_txo_count}`,
+      value: `Total: ${this.numbersService.formatterSATS.format(spent_txo_sum)} sats`,
+      inline: true,
+    })
 
     return response
   }
