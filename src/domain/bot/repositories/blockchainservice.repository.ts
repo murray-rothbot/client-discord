@@ -51,7 +51,7 @@ export class BlockchainServiceRepository {
   }
 
   getTransaction({ transaction }): Promise<any> {
-    const url = `${this.baseUrl}/tx/${transaction}`
+    const url = `${this.baseUrl}/tx/${transaction}/mainnet`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -142,6 +142,21 @@ export class BlockchainServiceRepository {
   listAlertTx({ userId }): Promise<any> {
     const webhookUrl = `${this.webhookUrl}/alert-tx/${userId}`
     const url = `${this.baseUrl}/alert-tx?webhookUrl=${webhookUrl}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
+
+  getHashrate(): Promise<any> {
+    const url = `${this.baseUrl}/hashrate`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
