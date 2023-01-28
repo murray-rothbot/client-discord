@@ -1,6 +1,7 @@
 import { InjectDiscordClient } from '@discord-nestjs/core'
 import { Injectable, Logger } from '@nestjs/common'
 import { Client, EmbedBuilder } from 'discord.js'
+import { createResponse } from 'src/utils/default-response'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { BlockchainServiceRepository } from '../bot/repositories/blockchainservice.repository'
 import {
@@ -189,73 +190,23 @@ export class WebhooksService {
     }
   }
 
-  sendOpReturn(userId: string, opReturn: any) {
+  sendOpReturn(userId: string, payload: any) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fields = []
-      fields.push({
-        name: ':receipt: Transaction ID:',
-        value: `${opReturn.txId}`,
-      })
-      fields.push({
-        name: ':link: Mempool Space Link:',
-        value: `${opReturn.url}`,
-      })
-      fields.push({
-        name: ':newspaper2: Message:',
-        value: `${opReturn.message}`,
-      })
+      // remove unnecessary keys from object
+      delete payload.fields.txId
+      delete payload.fields.url
 
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `🔔 OP-Return Confirmation 🔔`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
+      user.send(await createResponse(payload))
+      this.logger.debug(`NEW WEBHOOK - OP-Return: ${userId}`)
     })
-
-    this.logger.debug(`NEW WEBHOOK - OP-Return: ${opReturn.txId}`)
 
     return true
   }
 
-  sendTip(userId: string, tip: any) {
+  sendTip(userId: string, payload: any) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fields = []
-      fields.push({
-        name: '⚡ Donation:',
-        value: `**${tip.satoshis}** sats`,
-      })
-
-      const embed = new EmbedBuilder()
-        .setDescription('New donation received!\nThank you for your support!\n❤️')
-        .setAuthor({
-          name: `⚡ Murray Rothbot Tips ⚡`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
-      this.logger.debug(`NEW WEBHOOK - OP-Return: ${user.username} - ${tip.satoshis}`)
+      user.send(await createResponse(payload))
+      this.logger.debug(`NEW WEBHOOK - Tip: ${userId} - ${payload.fields.satoshis.value}`)
     })
 
     return true

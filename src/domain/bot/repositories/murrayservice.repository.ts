@@ -22,7 +22,9 @@ export class MurrayServiceRepository extends ServiceRepository {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
       webhook: `${this.webhookUrl}/tip/${user.id}`,
-      num_satoshis: satoshis,
+      satoshis,
+      userId: user.id,
+      social: 'discord',
     }
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
@@ -41,6 +43,8 @@ export class MurrayServiceRepository extends ServiceRepository {
     const bodyData = {
       webhook: `${this.webhookUrl}/op-return/${user.id}`,
       message,
+      userId: user.id,
+      social: 'discord',
     }
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
