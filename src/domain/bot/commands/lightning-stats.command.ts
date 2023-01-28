@@ -3,6 +3,7 @@ import { CommandInteraction } from 'discord.js'
 import { Injectable } from '@nestjs/common'
 import { LightningServiceRepository } from '../repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { defaultResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'lightning-stats',
@@ -16,90 +17,68 @@ export class LightningStatsCommand implements DiscordCommand {
   ) {}
 
   async handler(interaction: CommandInteraction): Promise<{}> {
-    const response = {
-      content: '',
-      tts: false,
-      embeds: [
-        {
-          type: 'rich',
-          title: '⚡ Lightning Network - Statistics',
-          description: '',
-          color: 0xff9900,
-          timestamp: new Date(),
-          fields: [],
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
-          },
-        },
-      ],
-    }
+    const response = defaultResponse()
+    const embed = response.embeds[0]
+    const fields = embed.fields
 
-    const fields = response.embeds[0].fields
+    embed.title = '⚡ Lightning Network - Statistics'
 
-    try {
-      const { data } = await this.lightningRepository.getNetworkStatistics()
+    const { data } = await this.lightningRepository.getNetworkStatistics()
 
-      const {
-        node_count,
-        clearnet_nodes,
-        tor_nodes,
-        channel_count,
-        total_capacity,
-        avg_capacity,
-        avg_fee_rate,
-        avg_base_fee_mtokens,
-      } = data
+    const {
+      node_count,
+      clearnet_nodes,
+      tor_nodes,
+      channel_count,
+      total_capacity,
+      avg_capacity,
+      avg_fee_rate,
+      avg_base_fee_mtokens,
+    } = data
 
-      fields.push({
-        name: '🖥️ Nodes',
-        value: this.numbersService.formatterSATS.format(node_count),
-        inline: true,
-      })
-      fields.push({
-        name: '🤵‍♂️ Nodes Clearnet',
-        value: this.numbersService.formatterSATS.format(clearnet_nodes),
-        inline: true,
-      })
-      fields.push({
-        name: '🕵️ Nodes Tor',
-        value: this.numbersService.formatterSATS.format(tor_nodes),
-        inline: true,
-      })
+    fields.push({
+      name: '🖥️ Nodes',
+      value: this.numbersService.formatterSATS.format(node_count),
+      inline: true,
+    })
+    fields.push({
+      name: '🤵‍♂️ Nodes Clearnet',
+      value: this.numbersService.formatterSATS.format(clearnet_nodes),
+      inline: true,
+    })
+    fields.push({
+      name: '🕵️ Nodes Tor',
+      value: this.numbersService.formatterSATS.format(tor_nodes),
+      inline: true,
+    })
 
-      fields.push({
-        name: '🔀 Channels',
-        value: this.numbersService.formatterSATS.format(channel_count),
-        inline: true,
-      })
-      fields.push({
-        name: '🪫 Avg. Capacity',
-        value: `⚡${this.numbersService.formatterSATS.format(avg_capacity)}`,
-        inline: true,
-      })
-      fields.push({
-        name: '🪫 Total Capacity',
-        value: `⚡${this.numbersService.formatterSATS.format(total_capacity)}`,
-        inline: true,
-      })
+    fields.push({
+      name: '🔀 Channels',
+      value: this.numbersService.formatterSATS.format(channel_count),
+      inline: true,
+    })
+    fields.push({
+      name: '🪫 Avg. Capacity',
+      value: `${this.numbersService.formatterSATS.format(avg_capacity)} sats`,
+      inline: true,
+    })
+    fields.push({
+      name: '🪫 Total Capacity',
+      value: `${this.numbersService.formatterSATS.format(total_capacity)} sats`,
+      inline: true,
+    })
 
-      fields.push({
-        name: '💸 Avg. Fee(ppm)',
-        value: `⚡${this.numbersService.formatterSATS.format(avg_fee_rate)}`,
-        inline: true,
-      })
-      fields.push({
-        name: '💸 Avg. Base Fee (msats)',
-        value: `⚡${this.numbersService.formatterSATS.format(avg_base_fee_mtokens)}`,
-        inline: true,
-      })
-      fields.push({ name: '\u200B', value: '\u200B', inline: true })
-    } catch (err) {
-      console.error(err)
-
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'Something went wrong'
-    }
+    fields.push({
+      name: '💸 Avg. Fee',
+      value: `${this.numbersService.formatterSATS.format(avg_fee_rate)} ppm`,
+      inline: true,
+    })
+    fields.push({
+      name: '💸 Avg. Base Fee',
+      value: `${this.numbersService.formatterSATS.format(avg_base_fee_mtokens)} msats`,
+      inline: true,
+    })
+    fields.push({ name: '\u200B', value: '\u200B', inline: true })
 
     return response
   }

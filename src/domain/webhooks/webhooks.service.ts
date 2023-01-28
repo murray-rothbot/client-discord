@@ -43,11 +43,7 @@ export class WebhooksService {
       })
 
       const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `🔔 New Alert Price 🔔`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
+        .setTitle(`🔔 New Alert Price`)
         .setFields(fields)
         .setFooter({
           text: `Powered by Murray Rothbot`,
@@ -86,11 +82,7 @@ export class WebhooksService {
       }
 
       const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `🔔 New Alert Fee 🔔`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
+        .setTitle(`🔔 New Alert Fee`)
         .setFields(fields)
         .setFooter({
           text: `Powered by Murray Rothbot`,
@@ -136,11 +128,7 @@ export class WebhooksService {
       })
 
       const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `🔔 Alert Transaction Confirmation 🔔`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
+        .setTitle(`🔔 Alert Transaction Confirmation`)
         .setFields(fields)
         .setFooter({
           text: `Powered by Murray Rothbot`,

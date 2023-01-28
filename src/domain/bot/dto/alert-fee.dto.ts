@@ -1,5 +1,5 @@
 import { Param, ParamType } from '@discord-nestjs/core'
-import { IsNotEmpty, IsNumber } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min } from 'class-validator'
 
 export class AlertFeeDto {
   @Param({
@@ -10,5 +10,6 @@ export class AlertFeeDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   fee: number
 }

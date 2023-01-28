@@ -4,13 +4,16 @@ import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
 import { InvoiceTip, InvoiceTipResponse } from 'src/domain/interfaces'
+import { ServiceRepository } from './service.repository'
 
 @Injectable()
-export class MurrayServiceRepository {
+export class MurrayServiceRepository extends ServiceRepository {
   constructor(
-    private readonly httpService: HttpService,
+    protected readonly httpService: HttpService,
     private readonly cfgService: ConfigService,
-  ) {}
+  ) {
+    super(httpService)
+  }
 
   baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')

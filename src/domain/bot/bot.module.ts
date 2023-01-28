@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { HttpModule } from '@nestjs/axios'
 import { DiscordModule, registerFilterGlobally } from '@discord-nestjs/core'
-import { CommandValidationFilter } from 'src/shared/filters/command-validation.filter'
+import { CommandExceptionFilter } from 'src/shared/filters/command-exception.filter'
 import { BotMiddleware } from 'src/shared/middlewares/bot.middleware'
 import { BotService } from './bot.service'
 import {
@@ -38,7 +38,7 @@ import { FeesCommand } from './commands/fees.command'
   providers: [
     {
       provide: registerFilterGlobally(),
-      useClass: CommandValidationFilter,
+      useClass: CommandExceptionFilter,
     },
     BotMiddleware,
     BotService,

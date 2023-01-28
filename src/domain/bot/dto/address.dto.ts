@@ -1,4 +1,5 @@
 import { Param } from '@discord-nestjs/core'
+import { Length } from 'class-validator'
 
 export class AddressDto {
   @Param({
@@ -6,5 +7,6 @@ export class AddressDto {
     description: 'An address',
     required: true,
   })
+  @Length(20, 90)
   address: string
 }

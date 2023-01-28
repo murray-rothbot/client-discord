@@ -1,4 +1,5 @@
 import { Param, ParamType } from '@discord-nestjs/core'
+import { Min } from 'class-validator'
 
 export class TipDto {
   @Param({
@@ -7,5 +8,6 @@ export class TipDto {
     required: true,
     type: ParamType.INTEGER,
   })
+  @Min(1)
   satoshis: number
 }

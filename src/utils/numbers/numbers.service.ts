@@ -16,7 +16,7 @@ export class NumbersService {
     return `${num < 0 ? '-' : ''}${formatted}${unity[reduce_factor]}`
   }
 
-  formatter = new Intl.NumberFormat('pt-BR', {
+  formatter = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -41,7 +41,7 @@ export class NumbersService {
     minimumFractionDigits: 8,
   })
 
-  formatterSATS = new Intl.NumberFormat('pt-BR', {
+  formatterSATS = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,

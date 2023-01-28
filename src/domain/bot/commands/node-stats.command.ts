@@ -1,4 +1,4 @@
-import { TransformPipe } from '@discord-nestjs/common'
+import { TransformPipe, ValidationPipe } from '@discord-nestjs/common'
 import {
   Command,
   DiscordTransformedCommand,
@@ -15,7 +15,7 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
   name: 'node-stats',
   description: 'Show lightning node stats',
 })
-@UsePipes(TransformPipe)
+@UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class NodeStatsCommand implements DiscordTransformedCommand<NodeDto> {
   constructor(
@@ -49,52 +49,46 @@ export class NodeStatsCommand implements DiscordTransformedCommand<NodeDto> {
     const embed = response.embeds[0]
     const fields = embed.fields
 
-    try {
-      const { pubkey } = dto
-      const { data } = await this.lightningRepository.getNode({ pubkey })
+    const { pubkey } = dto
+    const { data } = await this.lightningRepository.getNode({ pubkey })
 
-      const {
-        public_key,
-        alias,
-        active_channel_count,
-        capacity,
-        first_seen,
-        updated_at,
-        iso_code,
-        channels,
-      } = data
+    const {
+      public_key,
+      alias,
+      active_channel_count,
+      capacity,
+      first_seen,
+      updated_at,
+      iso_code,
+      channels,
+    } = data
 
-      const format = this.numbersService.formatterSATS.format
+    const format = this.numbersService.formatterSATS.format
 
-      const flag = iso_code ? `:flag_${iso_code.toLowerCase()}:` : ''
-      embed.title = `${flag} ${alias}`
-      fields.push({
-        name: '🔑 Public Key',
-        value: `[${public_key}](https://mempool.space/lightning/node/${public_key})`,
-      })
+    const flag = iso_code ? `:flag_${iso_code.toLowerCase()}:` : ''
+    embed.title = `${flag} ${alias}`
+    fields.push({
+      name: '🔑 Public Key',
+      value: `[${public_key}](https://mempool.space/lightning/node/${public_key})`,
+    })
 
-      fields.push({ name: '🔀 Channels', value: format(active_channel_count), inline: true })
-      fields.push({ name: '🪫 Capacity', value: `⚡${format(capacity)}`, inline: true })
-      fields.push({ name: '\u200B', value: '\u200B', inline: true })
+    fields.push({ name: '🔀 Channels', value: format(active_channel_count), inline: true })
+    fields.push({ name: '🪫 Capacity', value: `⚡${format(capacity)}`, inline: true })
+    fields.push({ name: '\u200B', value: '\u200B', inline: true })
 
-      fields.push({ name: '👁️ First seen', value: `<t:${first_seen}:R>`, inline: true })
-      fields.push({ name: '🗓️ Updated', value: `<t:${updated_at}:R>`, inline: true })
-      fields.push({ name: '\u200B', value: '\u200B', inline: true })
+    fields.push({ name: '👁️ First seen', value: `<t:${first_seen}:R>`, inline: true })
+    fields.push({ name: '🗓️ Updated', value: `<t:${updated_at}:R>`, inline: true })
+    fields.push({ name: '\u200B', value: '\u200B', inline: true })
 
-      fields.push({ name: '\u200B', value: 'Top channels by capacity:' })
+    fields.push({ name: '\u200B', value: 'Top channels by capacity:' })
 
-      const peers = channels.map((x) => x.node.alias || '').join('\n')
-      const capacities = channels.map((x) => `⚡${format(x.capacity)}`).join('\n')
-      const fees = channels.map((x) => `⚡${format(x.fee_rate)} ppm`).join('\n')
+    const peers = channels.map((x) => x.node.alias || '').join('\n')
+    const capacities = channels.map((x) => `${format(x.capacity)} sats`).join('\n')
+    const fees = channels.map((x) => `${format(x.fee_rate)} ppm`).join('\n')
 
-      fields.push({ name: '👥 Peer', value: peers, inline: true })
-      fields.push({ name: '🪫 Capacity', value: capacities, inline: true })
-      fields.push({ name: '💸 Fee', value: fees, inline: true })
-    } catch (err) {
-      console.log(err)
-      response.embeds[0].title = 'ERROR'
-      response.embeds[0].description = 'Something went wrong'
-    }
+    fields.push({ name: '👥 Peer', value: peers, inline: true })
+    fields.push({ name: '🪫 Capacity', value: capacities, inline: true })
+    fields.push({ name: '💸 Fee', value: fees, inline: true })
 
     return response
   }

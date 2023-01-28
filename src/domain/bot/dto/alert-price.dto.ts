@@ -1,5 +1,5 @@
 import { Param, Choice, ParamType } from '@discord-nestjs/core'
-import { IsNotEmpty, IsString, IsEnum, IsNumber } from 'class-validator'
+import { IsNotEmpty, IsString, IsEnum, IsNumber, Min } from 'class-validator'
 
 export enum Currencies {
   USD = 'USD',
@@ -14,6 +14,7 @@ export class AlertPriceDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   price: number
 
   @Choice(Currencies)
