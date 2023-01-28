@@ -1,5 +1,5 @@
 export interface InvoiceTip {
-  num_satoshis: number
+  satoshis: number
   user: any
 }
 

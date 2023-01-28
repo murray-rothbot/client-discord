@@ -18,12 +18,11 @@ export class MurrayServiceRepository extends ServiceRepository {
   baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
-  getInvoiceTip({ num_satoshis, user }: InvoiceTip): Promise<any> {
+  getInvoiceTip({ satoshis, user }: InvoiceTip): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
       webhook: `${this.webhookUrl}/tip/${user.id}`,
-      user: JSON.stringify(user),
-      num_satoshis,
+      num_satoshis: satoshis,
     }
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
@@ -41,7 +40,6 @@ export class MurrayServiceRepository extends ServiceRepository {
     const url = `${this.baseUrl}/payment/invoice/op-return`
     const bodyData = {
       webhook: `${this.webhookUrl}/op-return/${user.id}`,
-      user: JSON.stringify(user),
       message,
     }
     return lastValueFrom(
