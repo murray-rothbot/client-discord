@@ -63,7 +63,6 @@ export async function createResponse({
       })
     const file = new AttachmentBuilder(fileBuff)
     file.setName('qr.png')
-
     files.push(file)
   }
 
@@ -71,7 +70,6 @@ export async function createResponse({
     content: '',
     tts: false,
     files,
-    image: files ? { url: 'attachment://qr.png' } : null,
     embeds: [
       {
         title,
@@ -79,7 +77,7 @@ export async function createResponse({
         color,
         timestamp: new Date().toISOString(),
         fields: fieldsArr,
-        image: null,
+        image: files ? { url: 'attachment://qr.png' } : null,
         thumbnail: null,
         author: {
           name: ``,

@@ -9,9 +9,7 @@ import {
 import { Injectable } from '@nestjs/common'
 import { MurrayServiceRepository } from '../repositories'
 import { TipDto } from '../dto'
-import * as QRCode from 'qrcode'
 import { createResponse } from 'src/utils/default-response'
-import { AttachmentBuilder } from 'discord.js'
 
 @Command({
   name: 'tip',
@@ -45,11 +43,9 @@ export class TipCommand implements DiscordTransformedCommand<TipDto> {
       ]
     }
 
-    const {
-      data: { title, fields },
-    } = invoiceInfo
-    const qrCodeValue = fields.paymentRequest.value
+    const { data } = invoiceInfo
+    const { paymentRequest } = data.fields
 
-    return createResponse({ title, fields, qrCodeValue })
+    return createResponse({ ...data, qrCodeValue: paymentRequest.value })
   }
 }
