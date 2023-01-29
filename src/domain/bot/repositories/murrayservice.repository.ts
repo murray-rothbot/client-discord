@@ -281,4 +281,19 @@ export class MurrayServiceRepository {
       ),
     )
   }
+
+  getTransaction({ transaction }): Promise<any> {
+    const url = `${this.baseUrl}/blockchain/tx/${transaction}/mainnet`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
