@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
-import { InvoiceTip, InvoiceTipResponse } from 'src/domain/interfaces'
 import { ServiceRepository } from './service.repository'
 
 @Injectable()
@@ -18,7 +17,7 @@ export class MurrayServiceRepository extends ServiceRepository {
   baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
-  getInvoiceTip({ satoshis, user }: InvoiceTip): Promise<any> {
+  getInvoiceTip({ satoshis, user }): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
       webhook: `${this.webhookUrl}/tip/${user.id}`,
@@ -26,9 +25,10 @@ export class MurrayServiceRepository extends ServiceRepository {
       userId: user.id,
       social: 'discord',
     }
+
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
-        map((response: AxiosResponse<InvoiceTipResponse>) => {
+        map((response: AxiosResponse<any>) => {
           return response.data
         }),
         catchError(async () => {
@@ -46,6 +46,7 @@ export class MurrayServiceRepository extends ServiceRepository {
       userId: user.id,
       social: 'discord',
     }
+
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
         map((response: AxiosResponse<any>) => {

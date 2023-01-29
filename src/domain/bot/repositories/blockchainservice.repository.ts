@@ -27,8 +27,6 @@ export class BlockchainServiceRepository extends ServiceRepository {
       url = `${url}?height=${height}`
     }
 
-    console.log(url)
-
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<any>) => {
@@ -89,8 +87,8 @@ export class BlockchainServiceRepository extends ServiceRepository {
   }
 
   createAlertFee({ userId, fee }): Promise<any> {
-    const url = `${this.baseUrl}/alert-fee`
     const webhookUrl = `${this.webhookUrl}/alert-fee/${userId}`
+    const url = `${this.baseUrl}/alert-fee`
 
     return lastValueFrom(
       this.httpService
@@ -126,8 +124,8 @@ export class BlockchainServiceRepository extends ServiceRepository {
   }
 
   createAlertTx({ userId, txId, confirmationsAlert }): Promise<any> {
-    const url = `${this.baseUrl}/alert-tx`
     const webhookUrl = `${this.webhookUrl}/alert-tx/${userId}`
+    const url = `${this.baseUrl}/alert-tx`
 
     return lastValueFrom(
       this.httpService

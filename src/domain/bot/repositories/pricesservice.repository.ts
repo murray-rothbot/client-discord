@@ -35,6 +35,7 @@ export class PricesServiceRepository extends ServiceRepository {
   createAlertPrice({ userId, price, currency }): Promise<any> {
     const url = `${this.baseUrl}/alert-price`
     const webhookUrl = `${this.webhookUrl}/alert-price/${userId}`
+
     return lastValueFrom(
       this.httpService
         .post(url, {
@@ -71,6 +72,7 @@ export class PricesServiceRepository extends ServiceRepository {
   listAlertPrice({ userId }): Promise<any> {
     const webhookUrl = `${this.webhookUrl}/alert-price/${userId}`
     const url = `${this.baseUrl}/alert-price?webhookUrl=${webhookUrl}`
+
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<any>) => {

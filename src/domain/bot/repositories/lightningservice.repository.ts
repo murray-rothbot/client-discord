@@ -17,7 +17,7 @@ export class LightningServiceRepository extends ServiceRepository {
   baseUrl: string = this.cfgService.get<string>('LIGHTNING_SERVICE')
 
   getNetworkStatistics(): Promise<any> {
-    let url = `${this.baseUrl}/statistics`
+    const url = `${this.baseUrl}/statistics`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -32,7 +32,7 @@ export class LightningServiceRepository extends ServiceRepository {
   }
 
   getTopNodes(): Promise<any> {
-    let url = `${this.baseUrl}/top`
+    const url = `${this.baseUrl}/top`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
@@ -47,7 +47,7 @@ export class LightningServiceRepository extends ServiceRepository {
   }
 
   getNode({ pubkey }): Promise<any> {
-    let url = `${this.baseUrl}/node/${pubkey}`
+    const url = `${this.baseUrl}/node/${pubkey}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
