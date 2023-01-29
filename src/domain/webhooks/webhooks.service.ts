@@ -168,10 +168,6 @@ export class WebhooksService {
 
   sendOpReturn(userId: string, payload: any) {
     this.client.users.fetch(userId).then(async (user) => {
-      // remove unnecessary keys from object
-      delete payload.fields.txId
-      delete payload.fields.url
-
       user.send(await createResponse(payload))
       this.logger.debug(`NEW WEBHOOK - OP-Return: ${userId}`)
     })
