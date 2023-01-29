@@ -251,4 +251,19 @@ export class MurrayServiceRepository {
       ),
     )
   }
+
+  getDifficulty(): Promise<any> {
+    const url = `${this.baseUrl}/blockchain/difficulty`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
