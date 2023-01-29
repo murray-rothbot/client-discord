@@ -21,7 +21,6 @@ import { createResponse } from 'src/utils/default-response'
 })
 @Injectable()
 export class OpReturnCommand implements DiscordCommand {
-  private readonly logger = new Logger(OpReturnCommand.name)
   private readonly opReturnModalId = 'opreturnModal'
   private readonly msgComponentId = 'opreturn_message'
 

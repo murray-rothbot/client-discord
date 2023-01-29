@@ -37,6 +37,32 @@ export function defaultResponse() {
   }
 }
 
+function addField(fieldsArr: any[], { description, value, inline = false }: any) {
+  if (typeof value === 'string') {
+    fieldsArr.push({
+      name: description,
+      value,
+      inline,
+    })
+  } else {
+    if (value?.url) {
+      addField(fieldsArr, {
+        description,
+        value: `[${value.id.value}](${value.url.value})`,
+        inline,
+      })
+    } else {
+      fieldsArr.push({
+        name: '\u200B',
+        value: description,
+        inline,
+      })
+
+      Object.keys(value).forEach((key) => addField(fieldsArr, value[key]))
+    }
+  }
+}
+
 export async function createResponse({
   title = '',
   description = '',
@@ -44,14 +70,10 @@ export async function createResponse({
   color = 0xff9900,
   qrCodeValue = null,
 }: DefaultResponseI) {
-  const fieldsArr = Object.keys(fields).map((key) => {
-    return {
-      name: fields[key].description,
-      value: fields[key].value,
-    }
-  })
-
+  const fieldsArr = []
   const files = []
+
+  Object.keys(fields).forEach((key) => addField(fieldsArr, fields[key]))
 
   if (qrCodeValue) {
     const fileBuff = await QRCode.toDataURL(qrCodeValue)

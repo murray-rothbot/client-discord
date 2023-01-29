@@ -58,4 +58,20 @@ export class MurrayServiceRepository extends ServiceRepository {
       ),
     )
   }
+
+  getAddress({ address }): Promise<any> {
+    const url = `${this.baseUrl}/blockchain/address/${address}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          console.error(url)
+          return null
+        }),
+      ),
+    )
+  }
 }
