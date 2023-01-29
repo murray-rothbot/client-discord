@@ -74,4 +74,27 @@ export class MurrayServiceRepository extends ServiceRepository {
       ),
     )
   }
+
+  getBlock({ hash = null, height = null }): Promise<any> | {} {
+    let url = `${this.baseUrl}/blockchain/block`
+
+    if (hash) {
+      url = `${url}?hash=${hash}`
+    } else if (height) {
+      if (isNaN(height)) return { data: null }
+      url = `${url}?height=${height}`
+    }
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          console.error(url)
+          return null
+        }),
+      ),
+    )
+  }
 }
