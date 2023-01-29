@@ -266,4 +266,19 @@ export class MurrayServiceRepository {
       ),
     )
   }
+
+  getFee(): Promise<any> {
+    const url = `${this.baseUrl}/blockchain/fees`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
