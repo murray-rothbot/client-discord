@@ -155,39 +155,15 @@ export class WebhooksService {
     }
   }
 
-  async updateNewPrice(tickers: PriceBodyDto[]) {
-    let lastPriceUsd = 0
-    let lastPriceBrl = 0
-    let priceChangePercentUsd = 0
-    let priceChangePercentBrl = 0
+  async updateNewPrice(tickers: PriceBodyDto) {
+    const priceChangeUSD = tickers.usd.priceChangePercent <= 0 ? '▼' : '▲'
+    const priceChangeBRL = tickers.brl.priceChangePercent <= 0 ? '▼' : '▲'
+    const msg = `${priceChangeUSD}$${tickers.brl.formattedLastPrice} ${priceChangeBRL}R$${tickers.usd.formattedLastPrice}`
+    const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
 
-    tickers.map((data) => {
-      if (data?.symbol) {
-        if (data.symbol === 'BTCUSDT') {
-          lastPriceUsd = parseFloat(data.price)
-          priceChangePercentUsd = parseFloat(data.change24h)
-        } else if (data.symbol === 'BTCBRL') {
-          lastPriceBrl = parseFloat(data.price)
-          priceChangePercentBrl = parseFloat(data.change24h)
-        }
-      }
-    })
-
-    // check if both prices are available
-    if (lastPriceUsd > 0 && lastPriceBrl > 0) {
-      const priceChangeUSD = priceChangePercentUsd <= 0 ? '▼' : '▲'
-      const priceChangeBRL = priceChangePercentBrl <= 0 ? '▼' : '▲'
-      const msg = `${priceChangeUSD}$${this.numbersService.kFormatter(
-        lastPriceUsd,
-      )} ${priceChangeBRL}R$${this.numbersService.kFormatter(lastPriceBrl)}`
-      const status = priceChangePercentUsd <= 0 ? 'dnd' : 'online'
-
-      this.client.user.setStatus(status)
-      this.client.user.setActivity(msg)
-      this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
-    } else {
-      this.logger.error(`Update presence Tickers failed.`)
-    }
+    this.client.user.setStatus(status)
+    this.client.user.setActivity(msg)
+    this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
   }
 
   sendOpReturn(userId: string, payload: any) {

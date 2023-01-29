@@ -1,6 +1,12 @@
 export interface PriceBodyDto {
-  price: string
-  change24h: string
-  source: string
-  symbol: string
+  brl: {
+    priceChangePercent: number
+    lastPrice: number
+    formattedLastPrice: string
+  }
+  usd: {
+    priceChangePercent: number
+    lastPrice: number
+    formattedLastPrice: string
+  }
 }

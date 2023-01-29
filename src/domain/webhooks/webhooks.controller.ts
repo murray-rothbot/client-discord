@@ -48,7 +48,7 @@ export class WebhooksController {
   }
 
   @Post('/new-price')
-  updateNewPrice(@Body() priceDto: PriceBodyDto[]) {
+  updateNewPrice(@Body() priceDto: PriceBodyDto) {
     this.webhooksService.updateNewPrice(priceDto)
   }
 
