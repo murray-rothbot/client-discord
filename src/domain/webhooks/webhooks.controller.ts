@@ -8,6 +8,8 @@ import {
   AlertTxRequestDto,
   BlockBodyDto,
   PriceBodyDto,
+  MessageParamsDto,
+  MessageResponseDto,
 } from './dto'
 import { WebhooksService } from './webhooks.service'
 
@@ -53,14 +55,14 @@ export class WebhooksController {
   }
 
   @Post('/op-return/:userId')
-  sendOpReturn(@Param() params: any, @Body() opreturnDto: any) {
+  sendOpReturn(@Param() params: MessageParamsDto, @Body() opreturnDto: MessageResponseDto) {
     const { userId } = params
     this.webhooksService.sendOpReturn(userId, opreturnDto)
   }
 
   @Post('/tip/:userId')
-  sendTip(@Param() params: any, @Body() opreturnDto: any) {
+  sendTip(@Param() params: MessageParamsDto, @Body() tipDto: MessageResponseDto) {
     const { userId } = params
-    this.webhooksService.sendTip(userId, opreturnDto)
+    this.webhooksService.sendTip(userId, tipDto)
   }
 }
