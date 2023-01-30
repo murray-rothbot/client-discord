@@ -142,4 +142,19 @@ export class MurrayServiceRepository extends ServiceRepository {
       ),
     )
   }
+
+  getPrices(): Promise<any> {
+    const url = `${this.baseUrl}/prices`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
