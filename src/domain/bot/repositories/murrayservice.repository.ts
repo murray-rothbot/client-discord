@@ -98,6 +98,11 @@ export class MurrayServiceRepository extends ServiceRepository {
     return this.getData(url)
   }
 
+  getLightingTop(): Promise<any> {
+    const url = `${this.baseUrl}/lightning/top`
+    return this.getData(url)
+  }
+
   // Market
 
   getMarketCap(): Promise<any> {
