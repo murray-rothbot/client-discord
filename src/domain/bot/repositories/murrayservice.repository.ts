@@ -17,6 +17,8 @@ export class MurrayServiceRepository extends ServiceRepository {
   baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
 
+  // Paid Services
+
   getInvoiceTip({ satoshis, user }): Promise<any> {
     const url = `${this.baseUrl}/payment/invoice/tip`
     const bodyData = {
@@ -58,6 +60,8 @@ export class MurrayServiceRepository extends ServiceRepository {
       ),
     )
   }
+
+  // Blockchain
 
   getAddress({ address }): Promise<any> {
     const url = `${this.baseUrl}/blockchain/address/${address}`
@@ -143,6 +147,8 @@ export class MurrayServiceRepository extends ServiceRepository {
     )
   }
 
+  // Prices
+
   getPrices(): Promise<any> {
     const url = `${this.baseUrl}/prices`
 
@@ -160,6 +166,23 @@ export class MurrayServiceRepository extends ServiceRepository {
 
   convert({ value, currency }): Promise<any> {
     const url = `${this.baseUrl}/prices/convert?value=${value}&currency=${currency}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
+
+  // Market
+
+  getMarketCap(): Promise<any> {
+    const url = `${this.baseUrl}/market/capitalization`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
