@@ -28,16 +28,7 @@ export class MurrayServiceRepository extends ServiceRepository {
       social: 'discord',
     }
 
-    return lastValueFrom(
-      this.httpService.post(url, bodyData).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.postData(url, bodyData)
   }
 
   getInvoiceOpReturn({ message, user }): Promise<any> {
@@ -49,16 +40,7 @@ export class MurrayServiceRepository extends ServiceRepository {
       social: 'discord',
     }
 
-    return lastValueFrom(
-      this.httpService.post(url, bodyData).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.postData(url, bodyData)
   }
 
   // Blockchain
@@ -66,17 +48,7 @@ export class MurrayServiceRepository extends ServiceRepository {
   getAddress({ address }): Promise<any> {
     const url = `${this.baseUrl}/blockchain/address/${address}`
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   getBlock({ hash = null, height = null }): Promise<any> | {} {
@@ -89,108 +61,82 @@ export class MurrayServiceRepository extends ServiceRepository {
       url = `${url}?height=${height}`
     }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   getDifficulty(): Promise<any> {
     const url = `${this.baseUrl}/blockchain/difficulty`
-
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   getFee(): Promise<any> {
     const url = `${this.baseUrl}/blockchain/fees`
-
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   getTransaction({ transaction }): Promise<any> {
     const url = `${this.baseUrl}/blockchain/tx/${transaction}/mainnet`
-
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   // Prices
 
   getPrices(): Promise<any> {
     const url = `${this.baseUrl}/prices`
-
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return this.getData(url)
   }
 
   convert({ value, currency }): Promise<any> {
     const url = `${this.baseUrl}/prices/convert?value=${value}&currency=${currency}`
+    return this.getData(url)
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+  // Lightning
+
+  getLightingStatistics(): Promise<any> {
+    const url = `${this.baseUrl}/lightning/statistics`
+    return this.getData(url)
   }
 
   // Market
 
   getMarketCap(): Promise<any> {
     const url = `${this.baseUrl}/market/capitalization`
+    return this.getData(url)
+  }
 
+  // Internal
+
+  defaultError = [
+    {
+      property: 'backend',
+      constraints: {
+        isValid: 'backend is not working',
+      },
+    },
+  ]
+
+  private postData(url: string, bodyData: {}): Promise<any> {
+    return lastValueFrom(
+      this.httpService.post(url, bodyData).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          throw this.defaultError
+        }),
+      ),
+    )
+  }
+
+  private getData(url: string): Promise<any> {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<any>) => {
           return response.data
         }),
         catchError(async () => {
-          return null
+          throw this.defaultError
         }),
       ),
     )
