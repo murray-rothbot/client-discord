@@ -35,7 +35,7 @@ export class BlockchainCommand implements DiscordTransformedCommand<BlockDto> {
         {
           property: 'block id',
           constraints: {
-            isValid: 'block id must by a valid block hash or height',
+            isValid: 'block id must be a valid block hash or height',
           },
         },
       ]

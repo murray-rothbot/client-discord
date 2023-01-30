@@ -26,7 +26,6 @@ import {
 } from './commands'
 import {
   BlockchainServiceRepository,
-  LightningServiceRepository,
   MurrayServiceRepository,
   PricesServiceRepository,
 } from './repositories'
@@ -45,7 +44,6 @@ import { FeesCommand } from './commands/fees.command'
 
     // Data Providers
     BlockchainServiceRepository,
-    LightningServiceRepository,
     MurrayServiceRepository,
     PricesServiceRepository,
 

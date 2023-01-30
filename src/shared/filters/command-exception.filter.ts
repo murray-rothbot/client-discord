@@ -3,7 +3,6 @@ import { Logger } from '@nestjs/common'
 
 import {
   BlockchainServiceRepository,
-  LightningServiceRepository,
   MurrayServiceRepository,
   PricesServiceRepository,
 } from 'src/domain/bot/repositories'
@@ -13,7 +12,6 @@ import { defaultResponse } from 'src/utils/default-response'
 export class CommandExceptionFilter implements DiscordExceptionFilter {
   constructor(
     private readonly blockchainRepository: BlockchainServiceRepository,
-    private readonly lightningRepository: LightningServiceRepository,
     private readonly murrayRepository: MurrayServiceRepository,
     private readonly pricesRepository: PricesServiceRepository,
   ) {}
@@ -51,7 +49,6 @@ export class CommandExceptionFilter implements DiscordExceptionFilter {
       try {
         const services = [
           ['Blockchain', this.blockchainRepository],
-          ['Lighting', this.lightningRepository],
           ['Murray', this.murrayRepository],
           ['Prices', this.pricesRepository],
         ]

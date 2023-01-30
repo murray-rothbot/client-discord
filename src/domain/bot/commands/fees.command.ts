@@ -18,7 +18,7 @@ export class FeesCommand implements DiscordCommand {
     const keys: any[] = Object.keys(feesInfo.data.fields)
     feesInfo.data.fields = keys.reduce((obj, key, index) => {
       obj[key] = feesInfo.data.fields[key]
-      if (key == 'economy') obj['blank'] = { description: '\u200B', value: '\u200B' }
+      if (key == 'economy') obj[`blank${index}`] = { description: '\u200B', value: '\u200B' }
       return obj
     }, {})
 
