@@ -38,11 +38,6 @@ export class AddressCommand implements DiscordTransformedCommand<AddressDto> {
       ]
     }
 
-    addressInfo.data.fields.onchain.value.received.inline = true
-    addressInfo.data.fields.onchain.value.sent.inline = true
-    addressInfo.data.fields.mempool.value.received.inline = true
-    addressInfo.data.fields.mempool.value.sent.inline = true
-
-    return createResponse(addressInfo.data)
+    return createResponse(addressInfo.data, (key, inline) => ['received', 'sent'].includes(key))
   }
 }

@@ -38,13 +38,6 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
       ]
     }
 
-    txInfo.data.fields.inputs.inline = true
-    txInfo.data.fields.outputs.inline = true
-    txInfo.data.fields.fees.inline = true
-    txInfo.data.fields.size.inline = true
-    txInfo.data.fields.weight.inline = true
-    txInfo.data.fields.confirmed.inline = true
-
     const confirmed = txInfo.data.fields.confirmed.value
     if (confirmed) {
       const rbf = txInfo.data.fields.rbf.value
@@ -53,6 +46,6 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
 
     delete txInfo.data.fields.rbf
 
-    return createResponse(txInfo.data)
+    return createResponse(txInfo.data, (key, inline) => key !== 'hash')
   }
 }

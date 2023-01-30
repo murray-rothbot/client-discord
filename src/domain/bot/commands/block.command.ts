@@ -41,13 +41,8 @@ export class BlockchainCommand implements DiscordTransformedCommand<BlockDto> {
       ]
     }
 
-    blockInfo.data.fields.height.inline = true
-    blockInfo.data.fields.timestamp.inline = true
-    blockInfo.data.fields.txCount.inline = true
-    blockInfo.data.fields.size.inline = true
-    blockInfo.data.fields.weight.inline = true
-    blockInfo.data.fields.difficulty.inline = true
-
-    return createResponse(blockInfo.data)
+    return createResponse(blockInfo.data, (key, inline) =>
+      ['height', 'timestamp', 'txCount', 'size', 'weight', 'difficulty'].includes(key),
+    )
   }
 }

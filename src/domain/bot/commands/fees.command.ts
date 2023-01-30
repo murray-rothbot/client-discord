@@ -15,28 +15,13 @@ export class FeesCommand implements DiscordCommand {
   async handler(interaction: CommandInteraction): Promise<{}> {
     const feesInfo = await this.repository.getFee()
 
-    feesInfo.data.fields.fastestFee.inline = true
-    feesInfo.data.fields.halfHourFee.inline = true
-    feesInfo.data.fields.hourFee.inline = true
-    feesInfo.data.fields.economy.inline = true
-    feesInfo.data.fields.minimum.inline = true
-    feesInfo.data.fields['space'] = { description: '\u200B', value: '\u200B', inline: true }
+    const keys: any[] = Object.keys(feesInfo.data.fields)
+    feesInfo.data.fields = keys.reduce((obj, key, index) => {
+      obj[key] = feesInfo.data.fields[key]
+      if (key == 'economy') obj['blank'] = { description: '\u200B', value: '\u200B' }
+      return obj
+    }, {})
 
-    // reorder fields, put space key between economy and minimum
-    const fields = feesInfo.data.fields
-    const newFields = {}
-    if (fields.length % 3 !== 0) {
-      Object.keys(fields).forEach((key) => {
-        if (key === 'economy') {
-          newFields[key] = fields[key]
-          newFields['space'] = fields['space']
-        } else if (key !== 'space') {
-          newFields[key] = fields[key]
-        }
-      })
-      feesInfo.data.fields = newFields
-    }
-
-    return createResponse(feesInfo.data)
+    return createResponse(feesInfo.data, (key, inline) => key !== 'tip')
   }
 }

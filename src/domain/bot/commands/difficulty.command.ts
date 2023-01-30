@@ -21,10 +21,7 @@ export class DifficultyCommand implements DiscordCommand {
 
     const estimatedDate = difficultyInfo.data.fields.estimatedDate.value
     difficultyInfo.data.fields.estimatedDate.value = `<t:${Math.floor(estimatedDate / 1000)}:R>`
-    difficultyInfo.data.fields.estimatedDate.inline = true
-    difficultyInfo.data.fields.estimateChange.inline = true
-    difficultyInfo.data.fields.previousChange.inline = true
 
-    return createResponse(difficultyInfo.data)
+    return createResponse(difficultyInfo.data, (key, inline) => key !== 'currentProgress')
   }
 }

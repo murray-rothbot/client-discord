@@ -37,43 +37,51 @@ export function defaultResponse() {
   }
 }
 
-function addField(fieldsArr: any[], { description, value, inline = false }: any) {
-  if (typeof value === 'string') {
-    fieldsArr.push({
-      name: description,
-      value,
-      inline,
-    })
-  } else {
+function addField(fieldsArr: any[], key, { description, value, inline }: any, inlineFunc) {
+  if (typeof value === 'object') {
     if (value?.url) {
-      addField(fieldsArr, {
-        description,
-        value: `[${value.id.value}](${value.url.value})`,
-        inline,
-      })
+      // It's a URL composed field
+      addField(
+        fieldsArr,
+        key,
+        {
+          description,
+          value: `[${value.id.value}](${value.url.value})`,
+          inline,
+        },
+        inlineFunc,
+      )
     } else {
-      fieldsArr.push({
-        name: '\u200B',
-        value: description,
-        inline,
-      })
-
-      Object.keys(value).forEach((key) => addField(fieldsArr, value[key]))
+      // Add group title
+      addField(fieldsArr, key, { name: '', value: description, inline }, inlineFunc)
+      Object.keys(value).forEach((sub_key) =>
+        addField(fieldsArr, sub_key, value[sub_key], inlineFunc),
+      )
     }
+  } else if (description || value) {
+    // Simple field
+    fieldsArr.push({
+      name: description || '\u200B',
+      value: value || '\u200B',
+      inline: inlineFunc(key, inline),
+    })
   }
 }
 
-export async function createResponse({
-  title = '',
-  description = '',
-  fields = [],
-  color = 0xff9900,
-  qrCodeValue = null,
-}: DefaultResponseI) {
+export async function createResponse(
+  {
+    title = '',
+    description = '',
+    fields = [],
+    color = 0xff9900,
+    qrCodeValue = null,
+  }: DefaultResponseI,
+  inlineFunc = (key, value) => value,
+) {
   const fieldsArr = []
   const files = []
 
-  Object.keys(fields).forEach((key) => addField(fieldsArr, fields[key]))
+  Object.keys(fields).forEach((key) => addField(fieldsArr, key, fields[key], inlineFunc))
 
   if (qrCodeValue) {
     const fileBuff = await QRCode.toDataURL(qrCodeValue)
@@ -87,6 +95,9 @@ export async function createResponse({
     file.setName('qr.png')
     files.push(file)
   }
+
+  // Allow this till we finnish the refactoring, please
+  // console.log(JSON.stringify(fields, null, 2))
 
   return {
     content: '',
