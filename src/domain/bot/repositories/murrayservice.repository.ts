@@ -157,4 +157,19 @@ export class MurrayServiceRepository extends ServiceRepository {
       ),
     )
   }
+
+  convert({ value, currency }): Promise<any> {
+    const url = `${this.baseUrl}/prices/convert?value=${value}&currency=${currency}`
+
+    return lastValueFrom(
+      this.httpService.get(url).pipe(
+        map((response: AxiosResponse<any>) => {
+          return response.data
+        }),
+        catchError(async () => {
+          return null
+        }),
+      ),
+    )
+  }
 }
