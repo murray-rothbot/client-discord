@@ -16,7 +16,11 @@ export class DifficultyCommand implements DiscordCommand {
   async handler(interaction: CommandInteraction): Promise<any> {
     const difficultyInfo = await this.murrayRepository.getDifficulty()
 
-    const progressPercent = progressBar(difficultyInfo.data.fields.currentProgress.value / 100)
+    const barSize = 25
+    const progressPercent = progressBar(
+      Math.floor((difficultyInfo.data.fields.currentProgress.value / 100) * barSize),
+      barSize,
+    )
     difficultyInfo.data.fields.currentProgress.value = progressPercent
 
     const estimatedDate = difficultyInfo.data.fields.estimatedDate.value
