@@ -12,7 +12,7 @@ import { TransactionDto } from '../dto'
 import { createResponse } from 'src/utils/default-response'
 
 @Command({
-  name: 'tx',
+  name: 'transaction',
   description: 'Information about a transaction',
 })
 @UsePipes(TransformPipe, ValidationPipe)

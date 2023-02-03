@@ -5,11 +5,11 @@ import { MurrayServiceRepository } from '../repositories'
 import { createResponse } from 'src/utils/default-response'
 
 @Command({
-  name: 'btc',
+  name: 'price',
   description: 'Show bitcoin fiat price',
 })
 @Injectable()
-export class BTCCommand implements DiscordCommand {
+export class PriceCommand implements DiscordCommand {
   constructor(private readonly murrayRepository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {

@@ -10,14 +10,13 @@ import { group } from 'console'
   description: 'Market capitalization information',
 })
 @Injectable()
-export class MarketInfoCommand implements DiscordCommand {
+export class MarketCapCommand implements DiscordCommand {
   constructor(private readonly murrayRepository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
     const { data: marketInfo } = await this.murrayRepository.getMarketCap()
 
     return createResponse(marketInfo, (key, inline) => {
-      console.log(key)
       return true
     })
   }
