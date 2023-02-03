@@ -1,10 +1,7 @@
 import { Controller, Post, Body, Param } from '@nestjs/common'
 import {
-  AlertFeeBodyDto,
   AlertFeeRequestDto,
-  AlertPriceBodyDto,
   AlertPriceRequestDto,
-  AlertTxBodyDto,
   AlertTxRequestDto,
   BlockBodyDto,
   PriceBodyDto,
@@ -18,7 +15,10 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Post('/alert-price/:userId')
-  sendAlertPrices(@Param() params: AlertPriceRequestDto, @Body() alertPriceDto: AlertPriceBodyDto) {
+  sendAlertPrices(
+    @Param() params: AlertPriceRequestDto,
+    @Body() alertPriceDto: MessageResponseDto,
+  ) {
     const { userId } = params
     const sent = this.webhooksService.sendAlertPrices(userId, alertPriceDto)
 
@@ -27,7 +27,7 @@ export class WebhooksController {
   }
 
   @Post('/alert-fee/:userId')
-  sendAlertFee(@Param() params: AlertFeeRequestDto, @Body() alertFeeDto: AlertFeeBodyDto) {
+  sendAlertFee(@Param() params: AlertFeeRequestDto, @Body() alertFeeDto: MessageResponseDto) {
     const { userId } = params
     const sent = this.webhooksService.sendAlertFee(userId, alertFeeDto)
 
@@ -35,8 +35,8 @@ export class WebhooksController {
     return { message: 'NOK' }
   }
 
-  @Post('/alert-tx/:userId')
-  sendAlertTx(@Param() params: AlertTxRequestDto, @Body() alertTxDto: AlertTxBodyDto) {
+  @Post('/alert-transaction/:userId')
+  sendAlertTx(@Param() params: AlertTxRequestDto, @Body() alertTxDto: MessageResponseDto) {
     const { userId } = params
     const sent = this.webhooksService.sendAlertTx(userId, alertTxDto)
 

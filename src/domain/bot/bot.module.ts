@@ -10,25 +10,21 @@ import {
   AlertPriceCommand,
   AlertTxCommand,
   BlockchainCommand,
-  BTCCommand,
   ConvertCommand,
   DifficultyCommand,
   LightningStatsCommand,
   LightningTopCommand,
-  MarketInfoCommand,
+  MarketCapCommand,
   MyAlertFeeCommand,
   MyAlertPriceCommand,
   MyAlertTxCommand,
   NodeStatsCommand,
   OpReturnCommand,
+  PriceCommand,
   TipCommand,
   TransactionCommand,
 } from './commands'
-import {
-  BlockchainServiceRepository,
-  MurrayServiceRepository,
-  PricesServiceRepository,
-} from './repositories'
+import { MurrayServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { FeesCommand } from './commands/fees.command'
 
@@ -43,9 +39,7 @@ import { FeesCommand } from './commands/fees.command'
     BotService,
 
     // Data Providers
-    BlockchainServiceRepository,
     MurrayServiceRepository,
-    PricesServiceRepository,
 
     // Commands
     AddressCommand,
@@ -55,18 +49,18 @@ import { FeesCommand } from './commands/fees.command'
     AlertPriceCommand,
     AlertTxCommand,
     BlockchainCommand,
-    BTCCommand,
     ConvertCommand,
     DifficultyCommand,
     FeesCommand,
     LightningStatsCommand,
     LightningTopCommand,
-    MarketInfoCommand,
+    MarketCapCommand,
     MyAlertFeeCommand,
     MyAlertPriceCommand,
     MyAlertTxCommand,
     NodeStatsCommand,
     OpReturnCommand,
+    PriceCommand,
     TipCommand,
     TransactionCommand,
 
