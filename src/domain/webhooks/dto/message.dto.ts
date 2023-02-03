@@ -7,7 +7,7 @@ export class MessageResponseDto {
   fields: {
     [key: string]: {
       description: string
-      value: string
+      value: any
     }
   }
 }

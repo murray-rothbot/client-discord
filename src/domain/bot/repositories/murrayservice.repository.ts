@@ -1,18 +1,15 @@
-import { HttpService } from '@nestjs/axios'
-import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
-import { ServiceRepository } from './service.repository'
+import { HttpService } from '@nestjs/axios'
+import { Injectable, Logger } from '@nestjs/common'
 
 @Injectable()
-export class MurrayServiceRepository extends ServiceRepository {
+export class MurrayServiceRepository {
   constructor(
-    protected readonly httpService: HttpService,
+    private readonly httpService: HttpService,
     private readonly cfgService: ConfigService,
-  ) {
-    super(httpService)
-  }
+  ) {}
 
   baseUrl: string = this.cfgService.get<string>('MURRAY_SERVICE')
   webhookUrl: string = this.cfgService.get<string>('CLIENT_DISCORD_WEBHOOK')
@@ -47,7 +44,6 @@ export class MurrayServiceRepository extends ServiceRepository {
 
   getAddress({ address }): Promise<any> {
     const url = `${this.baseUrl}/blockchain/address/${address}`
-
     return this.getData(url)
   }
 
@@ -115,7 +111,66 @@ export class MurrayServiceRepository extends ServiceRepository {
     return this.getData(url)
   }
 
-  // Internal
+  // Alerts
+
+  createFeeAlert({ userId, fee }): Promise<any> {
+    const webhook = `${this.webhookUrl}/alert-fee/${userId}`
+    const url = `${this.baseUrl}/alert/fee`
+    const bodyData = {
+      webhook,
+      fee,
+    }
+
+    return this.postData(url, bodyData)
+  }
+
+  getFeeAlertList({ userId }): Promise<any> {
+    const webhook = this.createWebhookURL('fee', userId)
+    const url = `${this.baseUrl}/alert/fee/?webhook=${encodeURIComponent(webhook)}`
+    return this.getData(url)
+  }
+
+  createPriceAlert({ userId, price, currency }): Promise<any> {
+    const webhook = `${this.webhookUrl}/alert-price/${userId}`
+    const url = `${this.baseUrl}/alert/price`
+    const bodyData = {
+      webhook,
+      price,
+      currency,
+    }
+
+    return this.postData(url, bodyData)
+  }
+
+  getPriceAlertList({ userId }): Promise<any> {
+    const webhook = this.createWebhookURL('price', userId)
+    const url = `${this.baseUrl}/alert/price/?webhook=${encodeURIComponent(webhook)}`
+    return this.getData(url)
+  }
+
+  createTransactionAlert({ userId, transaction, confirmations }): Promise<any> {
+    const webhook = this.createWebhookURL('transaction', userId)
+    const url = `${this.baseUrl}/alert/transaction`
+    const bodyData = {
+      webhook,
+      transaction,
+      confirmations,
+    }
+
+    return this.postData(url, bodyData)
+  }
+
+  getTransactionAlertList({ userId }): Promise<any> {
+    const webhook = this.createWebhookURL('transaction', userId)
+    const url = `${this.baseUrl}/alert/transaction?webhook=${encodeURIComponent(webhook)}`
+    return this.getData(url)
+  }
+
+  createWebhookURL(type, userId) {
+    return `${this.webhookUrl}/alert-${type}/${userId}`
+  }
+
+  // Base
 
   defaultError = [
     {
@@ -126,26 +181,33 @@ export class MurrayServiceRepository extends ServiceRepository {
     },
   ]
 
-  private postData(url: string, bodyData: {}): Promise<any> {
+  protected postData(url: string, bodyData: {}): Promise<any> {
+    Logger.debug(`POST ${url}`)
+    // Logger.debug(JSON.stringify(bodyData, null, 2))
+
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
         map((response: AxiosResponse<any>) => {
           return response.data
         }),
         catchError(async () => {
+          Logger.error(`POST ${url}\n${JSON.stringify(bodyData, null, 2)}`)
           throw this.defaultError
         }),
       ),
     )
   }
 
-  private getData(url: string): Promise<any> {
+  protected getData(url: string): Promise<any> {
+    Logger.debug(`GET ${url}`)
+
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<any>) => {
           return response.data
         }),
         catchError(async () => {
+          Logger.error(`GET ${url}`)
           throw this.defaultError
         }),
       ),
