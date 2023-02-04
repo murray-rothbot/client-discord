@@ -12,15 +12,15 @@ import {
 import { IsModalInteractionGuard } from '../../../shared/guards/modal-interaction.guard'
 import { ModalFieldsTransformPipe } from '../../../shared/pipes/modal.fields.transform.pipe'
 import { OpReturnDTO } from '../dto/opreturn.dto'
-import * as QRCode from 'qrcode'
 import { MurrayServiceRepository } from '../repositories'
+import { createResponse } from 'src/utils/default-response'
+
 @Command({
   name: 'opreturn',
   description: 'Write data to the blockchain',
 })
 @Injectable()
 export class OpReturnCommand implements DiscordCommand {
-  private readonly logger = new Logger(OpReturnCommand.name)
   private readonly opReturnModalId = 'opreturnModal'
   private readonly msgComponentId = 'opreturn_message'
 
@@ -48,87 +48,43 @@ export class OpReturnCommand implements DiscordCommand {
   @UsePipes(ModalFieldsTransformPipe)
   @UseGuards(IsModalInteractionGuard)
   async onModuleSubmit(@Payload() dto: OpReturnDTO, modal: ModalSubmitInteraction) {
-    const opReturnBytes = new TextEncoder().encode(dto.opreturn_message).length
-    const response = {
-      tts: false,
-      fetchReply: true,
-      embeds: [
-        {
-          title: '',
-          description: 'We need your help to keep the lights on!',
-          color: 0xff9900,
-          fields: [],
-          author: {
-            name: `Murray Rothbot - OP Return Service`,
-            url: `https://murrayrothbot.com/`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
-          },
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
-          },
-        },
-      ],
-      files: [],
-    }
-
-    const embed = response.embeds[0]
-    const fields = embed.fields
-
     if (modal.customId !== this.opReturnModalId) return
 
-    fields.push({
-      name: ':receipt: Bytes (max 80):',
-      value: `${opReturnBytes} bytes`,
-    })
-    fields.push({
-      name: ':newspaper2: Message:',
-      value: `${dto.opreturn_message}`,
-    })
-
     // validate bytes
-    if (opReturnBytes > 80) {
-      embed.color = 0xff0000
-      embed.description = `Your message is too long. Please shorten it to 83 bytes or less.`
-
-      await modal.reply(response)
-      return
+    const bytes = new TextEncoder().encode(dto.opreturn_message).length
+    if (bytes > 80) {
+      throw [
+        {
+          property: 'opreturn',
+          constraints: {
+            isValid: 'Your message is too long. Please shorten it to 80 bytes or less.',
+          },
+        },
+      ]
     }
 
-    const invoice = await this.murrayRepository.getInvoiceOpReturn({
-      message: dto.opreturn_message,
-      user: modal.user,
+    const { opreturn_message: message } = dto
+    const { user } = modal
+
+    const invoiceInfo = await this.murrayRepository.getInvoiceOpReturn({
+      message,
+      user,
     })
 
-    if (invoice === null) {
-      embed.title = 'ERROR'
-      embed.description = 'We could not generate an invoice, try again later!'
-
-      await modal.reply(response)
-      return
+    if (invoiceInfo === null) {
+      throw [
+        {
+          property: 'opreturn',
+          constraints: {
+            isValid: 'We could not generate an invoice, try again later!',
+          },
+        },
+      ]
     }
 
-    const {
-      data: { payment_request, num_satoshis },
-    } = invoice
-
-    fields.push({
-      name: ':moneybag: Amount (sats):',
-      value: `${num_satoshis} sats`,
-    })
-    fields.push({
-      name: ':receipt: Payment Request:',
-      value: `${payment_request}`,
-    })
-
-    const fileBuff = await QRCode.toDataURL(payment_request)
-      .then((url: string) => {
-        return Buffer.from(url.split(',')[1], 'base64')
-      })
-      .catch((err: any) => {
-        console.error(err)
-      })
-    response.files = [fileBuff]
+    const { data } = invoiceInfo
+    const { paymentRequest } = data.fields
+    const response = await createResponse({ ...data, qrCodeValue: paymentRequest.value })
 
     await modal.reply(response)
   }

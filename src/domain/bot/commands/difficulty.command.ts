@@ -1,9 +1,9 @@
 import { Command, DiscordCommand } from '@discord-nestjs/core'
 import { CommandInteraction } from 'discord.js'
 import { Injectable } from '@nestjs/common'
-import { BlockchainServiceRepository } from '../repositories'
+import { MurrayServiceRepository } from '../repositories'
 import { progressBar } from 'src/utils'
-import { defaultResponse } from 'src/utils/default-response'
+import { createResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'difficulty',
@@ -11,52 +11,21 @@ import { defaultResponse } from 'src/utils/default-response'
 })
 @Injectable()
 export class DifficultyCommand implements DiscordCommand {
-  constructor(private readonly blockRepository: BlockchainServiceRepository) {}
+  constructor(private readonly murrayRepository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
-    const response = defaultResponse()
-    const embed = response.embeds[0]
-    const fields = embed.fields
+    const difficultyInfo = await this.murrayRepository.getDifficulty()
 
-    embed.title = '🦾 Next Difficult Adjustment'
-    embed.description =
-      'In order to ensure bitcoin blocks are discovered roughly every 10 minutes, an automatic system is in place to adjust the difficulty every 2016 blocks depending on how many miners are competing to discover blocks at any given time.'
+    const barSize = 25
+    const progressPercent = progressBar(
+      Math.floor((difficultyInfo.data.fields.currentProgress.value / 100) * barSize),
+      barSize,
+    )
+    difficultyInfo.data.fields.currentProgress.value = progressPercent
 
-    const data = await this.blockRepository.getHashrate()
+    const estimatedDate = difficultyInfo.data.fields.estimatedDate.value
+    difficultyInfo.data.fields.estimatedDate.value = `<t:${Math.floor(estimatedDate / 1000)}:R>`
 
-    const {
-      data: {
-        remainingBlocks,
-        progressPercent,
-        estimatedRetargetDate,
-        difficultyChange,
-        previousRetarget,
-      },
-    } = data
-
-    const arrow = (value) => (value > 0 ? '🔼' : '🔽')
-    const change = (value) => `${arrow(value)} ${value.toFixed(2)}%`
-
-    fields.push({
-      name: `🏁 Current Progress - ${2016 - remainingBlocks}/2016 blocks`,
-      value: progressBar(progressPercent / 100),
-    })
-    fields.push({
-      name: '🗓️ Estimated Date',
-      value: `<t:${Math.floor(estimatedRetargetDate / 1000)}:R>`,
-      inline: true,
-    })
-    fields.push({
-      name: 'Estimated Change',
-      value: change(difficultyChange),
-      inline: true,
-    })
-    fields.push({
-      name: 'Previous Change',
-      value: change(previousRetarget),
-      inline: true,
-    })
-
-    return response
+    return createResponse(difficultyInfo.data, (key, inline) => key !== 'currentProgress')
   }
 }

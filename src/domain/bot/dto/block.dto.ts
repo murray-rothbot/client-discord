@@ -8,6 +8,6 @@ export class BlockDto {
     required: false,
   })
   @IsOptional()
-  @Length(64, 64)
+  @Length(1, 64)
   id: string
 }

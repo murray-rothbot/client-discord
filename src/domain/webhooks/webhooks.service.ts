@@ -1,15 +1,10 @@
 import { InjectDiscordClient } from '@discord-nestjs/core'
 import { Injectable, Logger } from '@nestjs/common'
 import { Client, EmbedBuilder } from 'discord.js'
+import { progressBar } from 'src/utils'
+import { createResponse } from 'src/utils/default-response'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
-import { BlockchainServiceRepository } from '../bot/repositories/blockchainservice.repository'
-import {
-  AlertPriceBodyDto,
-  AlertFeeBodyDto,
-  AlertTxBodyDto,
-  PriceBodyDto,
-  BlockBodyDto,
-} from './dto'
+import { PriceBodyDto, BlockBodyDto, MessageResponseDto } from './dto'
 
 @Injectable()
 export class WebhooksService {
@@ -18,43 +13,11 @@ export class WebhooksService {
     @InjectDiscordClient()
     private readonly client: Client,
     private readonly numbersService: NumbersService,
-    private readonly blockchainService: BlockchainServiceRepository,
   ) {}
 
-  sendAlertPrices(userId: string, alertPrice: AlertPriceBodyDto) {
-    this.client.users.fetch(userId).then((user) => {
-      const { price, currency, above } = alertPrice
-
-      const currentPrice =
-        currency === 'USD'
-          ? this.numbersService.formatterUSD.format(alertPrice.currentPrice)
-          : this.numbersService.formatterBRL.format(alertPrice.currentPrice)
-      const side = above ? 'Higher or equal then:\n📈 ' : 'Lower or equal then\n📉 '
-      const flag = currency === 'USD' ? '🇺🇸' : '🇧🇷'
-      const priceAlert =
-        currency === 'USD'
-          ? this.numbersService.formatterUSD.format(price)
-          : this.numbersService.formatterBRL.format(price)
-
-      const fields = []
-      fields.push({
-        name: 'Your alert price was reached!',
-        value: `**\n${side}${flag} ${priceAlert}\n\nCurrent Price:\n${flag} ${currentPrice}**`,
-      })
-
-      const embed = new EmbedBuilder()
-        .setTitle(`🔔 New Alert Price`)
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
+  sendAlertPrices(userId: string, alertPrice: MessageResponseDto) {
+    this.client.users.fetch(userId).then(async (user) => {
+      user.send(await createResponse(alertPrice))
     })
 
     this.logger.debug(`NEW WEBHOOK - Alert Price`)
@@ -62,38 +25,9 @@ export class WebhooksService {
     return true
   }
 
-  sendAlertFee(userId: string, alertFee: AlertFeeBodyDto) {
+  sendAlertFee(userId: string, alertFee: MessageResponseDto) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fees = await this.blockchainService.getFee()
-      const { fee } = alertFee
-
-      const fields = []
-      fields.push({
-        name: 'Your alert fee was reached!',
-        value: `**\nLower or equal then:**\n⬇️ ${fee} sats/vByte\n\n**Current Fee:**\n${fees.data.fastestFee} sats/vByte\n`,
-      })
-
-      if (fee == 1) {
-        fields.push({
-          name: '\u200B\nGreat moment to:',
-          value: '* Do a coinjoin\n* Consolidate your UTXOs\n* Open a Lightning Channel',
-          inline: false,
-        })
-      }
-
-      const embed = new EmbedBuilder()
-        .setTitle(`🔔 New Alert Fee`)
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
+      user.send(await createResponse(alertFee))
     })
 
     this.logger.debug(`NEW WEBHOOK - Alert Fee`)
@@ -101,45 +35,19 @@ export class WebhooksService {
     return true
   }
 
-  sendAlertTx(userId: string, alertTx: AlertTxBodyDto) {
+  sendAlertTx(userId: string, alertTx: MessageResponseDto) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fields = []
-      fields.push({
-        name: 'Transaction Hex:',
-        value: `🔀 ${alertTx.txId}`,
-      })
+      const expectedConfirmations = alertTx.fields.expectedConfirmations.value
+      delete alertTx.fields.expectedConfirmations
 
-      const confirmationsLeft = alertTx.confirmationsAlert - alertTx.currentConfirmation
-      let confirmationsDone = alertTx.currentConfirmation
-      if (alertTx.currentConfirmation >= 6) {
-        confirmationsDone = 6
-      }
-      const confirmationIcons = []
-      for (let i = 0; i < confirmationsDone; i++) {
-        confirmationIcons.push('🟢')
-      }
-      for (let i = 0; i < confirmationsLeft; i++) {
-        confirmationIcons.push('🟡')
-      }
-      fields.push({
-        name: `✅ Confirmations: ${alertTx.currentConfirmation}/${alertTx.confirmationsAlert}`,
-        value: `${confirmationIcons.join('')}`,
-        inline: true,
-      })
+      alertTx.fields.confirmations.value = progressBar(
+        alertTx.fields.confirmations.value,
+        expectedConfirmations,
+        '🟢',
+        '🟡',
+      )
 
-      const embed = new EmbedBuilder()
-        .setTitle(`🔔 Alert Transaction Confirmation`)
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
+      user.send(await createResponse(alertTx))
     })
 
     this.logger.debug(`NEW WEBHOOK - Alert Tx`)
@@ -154,108 +62,30 @@ export class WebhooksService {
     }
   }
 
-  async updateNewPrice(tickers: PriceBodyDto[]) {
-    let lastPriceUsd = 0
-    let lastPriceBrl = 0
-    let priceChangePercentUsd = 0
-    let priceChangePercentBrl = 0
+  async updateNewPrice(tickers: PriceBodyDto) {
+    const priceChangeUSD = tickers.usd.priceChangePercent <= 0 ? '▼' : '▲'
+    const priceChangeBRL = tickers.brl.priceChangePercent <= 0 ? '▼' : '▲'
+    const msg = `${priceChangeUSD}$${tickers.brl.formattedLastPrice} ${priceChangeBRL}R$${tickers.usd.formattedLastPrice}`
+    const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
 
-    tickers.map((data) => {
-      if (data?.symbol) {
-        if (data.symbol === 'BTCUSDT') {
-          lastPriceUsd = parseFloat(data.price)
-          priceChangePercentUsd = parseFloat(data.change24h)
-        } else if (data.symbol === 'BTCBRL') {
-          lastPriceBrl = parseFloat(data.price)
-          priceChangePercentBrl = parseFloat(data.change24h)
-        }
-      }
-    })
-
-    // check if both prices are available
-    if (lastPriceUsd > 0 && lastPriceBrl > 0) {
-      const priceChangeUSD = priceChangePercentUsd <= 0 ? '▼' : '▲'
-      const priceChangeBRL = priceChangePercentBrl <= 0 ? '▼' : '▲'
-      const msg = `${priceChangeUSD}$${this.numbersService.kFormatter(
-        lastPriceUsd,
-      )} ${priceChangeBRL}R$${this.numbersService.kFormatter(lastPriceBrl)}`
-      const status = priceChangePercentUsd <= 0 ? 'dnd' : 'online'
-
-      this.client.user.setStatus(status)
-      this.client.user.setActivity(msg)
-      this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
-    } else {
-      this.logger.error(`Update presence Tickers failed.`)
-    }
+    this.client.user.setStatus(status)
+    this.client.user.setActivity(msg)
+    this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
   }
 
-  sendOpReturn(userId: string, opReturn: any) {
+  sendOpReturn(userId: string, payload: any) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fields = []
-      fields.push({
-        name: ':receipt: Transaction ID:',
-        value: `${opReturn.txId}`,
-      })
-      fields.push({
-        name: ':link: Mempool Space Link:',
-        value: `${opReturn.url}`,
-      })
-      fields.push({
-        name: ':newspaper2: Message:',
-        value: `${opReturn.message}`,
-      })
-
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `🔔 OP-Return Confirmation 🔔`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
+      user.send(await createResponse(payload))
+      this.logger.debug(`NEW WEBHOOK - OP-Return: ${userId}`)
     })
-
-    this.logger.debug(`NEW WEBHOOK - OP-Return: ${opReturn.txId}`)
 
     return true
   }
 
-  sendTip(userId: string, tip: any) {
+  sendTip(userId: string, payload: any) {
     this.client.users.fetch(userId).then(async (user) => {
-      const fields = []
-      fields.push({
-        name: '⚡ Donation:',
-        value: `**${tip.satoshis}** sats`,
-      })
-
-      const embed = new EmbedBuilder()
-        .setDescription('New donation received!\nThank you for your support!\n❤️')
-        .setAuthor({
-          name: `⚡ Murray Rothbot Tips ⚡`,
-          url: `https://murrayrothbot.com/`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setFields(fields)
-        .setFooter({
-          text: `Powered by Murray Rothbot`,
-          iconURL: `https://murrayrothbot.com/murray-rothbot2.png`,
-        })
-        .setTimestamp(new Date())
-        .setColor(0x1eff00)
-
-      user.send({
-        embeds: [embed],
-      })
-      this.logger.debug(`NEW WEBHOOK - OP-Return: ${user.username} - ${tip.satoshis}`)
+      user.send(await createResponse(payload))
+      this.logger.debug(`NEW WEBHOOK - Tip: ${userId} - ${payload.fields.satoshis.value}`)
     })
 
     return true

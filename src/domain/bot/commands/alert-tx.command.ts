@@ -7,51 +7,31 @@ import {
   UsePipes,
 } from '@discord-nestjs/core'
 import { Injectable } from '@nestjs/common'
-import { BlockchainServiceRepository } from '../repositories'
+import { MurrayServiceRepository } from '../repositories'
 import { AlertTxDto } from '../dto/alert-tx.dto'
-import { defaultResponse } from 'src/utils/default-response'
+import { createResponse } from 'src/utils/default-response'
 
 @Command({
-  name: 'alert-tx',
+  name: 'transaction-alert',
   description: 'Create new transaction alert',
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class AlertTxCommand implements DiscordTransformedCommand<AlertTxDto> {
-  constructor(private readonly blockchainRepository: BlockchainServiceRepository) {}
+  constructor(private readonly repository: MurrayServiceRepository) {}
 
   async handler(
     @Payload() dto: AlertTxDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const response = defaultResponse()
-    const embed = response.embeds[0]
-    const fields = embed.fields
-
-    embed.title = '🗓️ Schedule Alert Transaction'
-
-    const { transaction, confirmations } = dto
-    if (!confirmations) {
-      dto.confirmations = 1
-    }
-
     const userId = interaction.user.id
-    await this.blockchainRepository.createAlertTx({
+    const { transaction, confirmations } = dto
+    const { data: alertInfo } = await this.repository.createTransactionAlert({
       userId,
-      txId: transaction,
-      confirmationsAlert: dto.confirmations,
+      transaction,
+      confirmations,
     })
 
-    fields.push({
-      name: '🧬 Hash:',
-      value: `[${transaction}](https://mempool.space/tx/${transaction})`,
-    })
-    fields.push({
-      name: `✅ How many confirmations?`,
-      value: `${dto.confirmations}`,
-      inline: true,
-    })
-
-    return response
+    return createResponse(alertInfo)
   }
 }

@@ -7,9 +7,9 @@ import {
   UsePipes,
 } from '@discord-nestjs/core'
 import { Injectable } from '@nestjs/common'
-import { LightningServiceRepository } from '../repositories'
+import { MurrayServiceRepository } from '../repositories'
 import { NodeDto } from '../dto'
-import { NumbersService } from 'src/utils/numbers/numbers.service'
+import { createResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'node-stats',
@@ -18,78 +18,33 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class NodeStatsCommand implements DiscordTransformedCommand<NodeDto> {
-  constructor(
-    private readonly lightningRepository: LightningServiceRepository,
-    private readonly numbersService: NumbersService,
-  ) {}
+  constructor(private readonly murrayRepository: MurrayServiceRepository) {}
 
   async handler(
     @Payload() dto: NodeDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const response = {
-      content: '',
-      tts: false,
-      embeds: [
+    const { data: nodeInfo } = await this.murrayRepository.getLightingNode({ pubkey: dto.pubkey })
+
+    if (!nodeInfo) {
+      throw [
         {
-          type: 'rich',
-          title: 'Block Info',
-          description: '',
-          color: 0xff9900,
-          timestamp: new Date(),
-          fields: [],
-          footer: {
-            text: `Powered by Murray Rothbot`,
-            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          property: 'node pubkey',
+          constraints: {
+            isValid: 'pubkey must be a valid node',
           },
         },
-      ],
+      ]
     }
 
-    const embed = response.embeds[0]
-    const fields = embed.fields
+    const keys: any[] = Object.keys(nodeInfo.fields)
+    nodeInfo.fields = keys.reduce((obj, key, index) => {
+      obj[key] = nodeInfo.fields[key]
+      if (['capacity', 'updated'].includes(key))
+        obj[`blank${index}`] = { description: '\u200B', value: '\u200B' }
+      return obj
+    }, {})
 
-    const { pubkey } = dto
-    const { data } = await this.lightningRepository.getNode({ pubkey })
-
-    const {
-      public_key,
-      alias,
-      active_channel_count,
-      capacity,
-      first_seen,
-      updated_at,
-      iso_code,
-      channels,
-    } = data
-
-    const format = this.numbersService.formatterSATS.format
-
-    const flag = iso_code ? `:flag_${iso_code.toLowerCase()}:` : ''
-    embed.title = `${flag} ${alias}`
-    fields.push({
-      name: '🔑 Public Key',
-      value: `[${public_key}](https://mempool.space/lightning/node/${public_key})`,
-    })
-
-    fields.push({ name: '🔀 Channels', value: format(active_channel_count), inline: true })
-    fields.push({ name: '🪫 Capacity', value: `⚡${format(capacity)}`, inline: true })
-    fields.push({ name: '\u200B', value: '\u200B', inline: true })
-
-    fields.push({ name: '👁️ First seen', value: `<t:${first_seen}:R>`, inline: true })
-    fields.push({ name: '🗓️ Updated', value: `<t:${updated_at}:R>`, inline: true })
-    fields.push({ name: '\u200B', value: '\u200B', inline: true })
-
-    fields.push({ name: '\u200B', value: 'Top channels by capacity:' })
-
-    const peers = channels.map((x) => x.node.alias || '').join('\n')
-    const capacities = channels.map((x) => `${format(x.capacity)} sats`).join('\n')
-    const fees = channels.map((x) => `${format(x.fee_rate)} ppm`).join('\n')
-
-    fields.push({ name: '👥 Peer', value: peers, inline: true })
-    fields.push({ name: '🪫 Capacity', value: capacities, inline: true })
-    fields.push({ name: '💸 Fee', value: fees, inline: true })
-
-    return response
+    return createResponse(nodeInfo, (key, inline) => !['pubkey', 'topChannels'].includes(key))
   }
 }

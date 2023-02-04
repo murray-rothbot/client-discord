@@ -9,10 +9,7 @@ import {
 import { Injectable } from '@nestjs/common'
 import { MurrayServiceRepository } from '../repositories'
 import { TipDto } from '../dto'
-import * as QRCode from 'qrcode'
-import { NumbersService } from 'src/utils/numbers/numbers.service'
-import { defaultResponse } from 'src/utils/default-response'
-import { Attachment, AttachmentBuilder } from 'discord.js'
+import { createResponse } from 'src/utils/default-response'
 
 @Command({
   name: 'tip',
@@ -21,68 +18,34 @@ import { Attachment, AttachmentBuilder } from 'discord.js'
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()
 export class TipCommand implements DiscordTransformedCommand<TipDto> {
-  constructor(
-    private readonly murrayRepository: MurrayServiceRepository,
-    private readonly numbersService: NumbersService,
-  ) {}
+  constructor(private readonly murrayRepository: MurrayServiceRepository) {}
 
   async handler(
     @Payload() dto: TipDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const response = defaultResponse()
-    const embed = response.embeds[0]
-    const fields = embed.fields
-
-    embed.title = '🪙 Tip Murray Rothbot with Lightning Network'
-
     const { satoshis } = dto
-    let valSats = satoshis
-    if (valSats < 0) {
-      valSats = 0
-    }
+    const { user } = interaction
 
-    const invoice = await this.murrayRepository.getInvoiceTip({
-      num_satoshis: valSats,
-      user: interaction.user,
+    const invoiceInfo = await this.murrayRepository.getInvoiceTip({
+      satoshis,
+      user,
     })
 
-    if (invoice === null) {
-      embed.title = 'ERROR'
-      embed.description = 'We could not generate an invoice, try again later!'
-      return response
+    if (invoiceInfo === null) {
+      throw [
+        {
+          property: 'invoice',
+          constraints: {
+            isValid: 'We could not generate an invoice, try again later!',
+          },
+        },
+      ]
     }
 
-    const {
-      data: { payment_request },
-    } = invoice
+    const { data } = invoiceInfo
+    const { paymentRequest } = data.fields
 
-    fields.push({
-      name: ':moneybag: Amount:',
-      value: `${this.numbersService.formatterSATS.format(valSats)} ${valSats < 1 ? 'sat' : 'sats'}`,
-    })
-
-    fields.push({
-      name: ':receipt: Payment Request:',
-      value: `${payment_request}`,
-    })
-
-    const fileBuff = await QRCode.toDataURL(payment_request)
-      .then((url: string) => {
-        return Buffer.from(url.split(',')[1], 'base64')
-      })
-      .catch((err: any) => {
-        console.error(err)
-      })
-    const file = new AttachmentBuilder(fileBuff)
-    file.setName('qr.png')
-
-    response.files.push(file)
-
-    embed.image = {
-      url: 'attachment://qr.png',
-    }
-
-    return response
+    return createResponse({ ...data, qrCodeValue: paymentRequest.value })
   }
 }
