@@ -10,6 +10,7 @@ import { Injectable } from '@nestjs/common'
 import { MurrayServiceRepository } from '../repositories'
 import { TipDto } from '../dto'
 import { createResponse } from 'src/utils/default-response'
+import { ok } from 'assert'
 
 @Command({
   name: 'tip',
@@ -46,6 +47,8 @@ export class TipCommand implements DiscordTransformedCommand<TipDto> {
     const { data } = invoiceInfo
     const { paymentRequest } = data.fields
 
-    return createResponse({ ...data, qrCodeValue: paymentRequest.value })
+    // return createResponse({ ...data, qrCodeValue: paymentRequest.value })
+    interaction.user.send(await createResponse({ ...data, qrCodeValue: paymentRequest.value }))
+    return 'Private command: I sent you a direct message.'
   }
 }

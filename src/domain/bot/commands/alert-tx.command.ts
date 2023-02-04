@@ -32,6 +32,8 @@ export class AlertTxCommand implements DiscordTransformedCommand<AlertTxDto> {
       confirmations,
     })
 
-    return createResponse(alertInfo)
+    // return createResponse(alertInfo)
+    interaction.user.send(await createResponse(alertInfo))
+    return 'Private command: I sent you a direct message.'
   }
 }

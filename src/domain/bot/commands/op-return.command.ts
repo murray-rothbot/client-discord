@@ -1,5 +1,5 @@
 import { Command, DiscordCommand, On, Payload, UsePipes } from '@discord-nestjs/core'
-import { Injectable, Logger, UseGuards } from '@nestjs/common'
+import { Injectable, UseGuards } from '@nestjs/common'
 import {
   ActionRowBuilder,
   CommandInteraction,
@@ -86,6 +86,8 @@ export class OpReturnCommand implements DiscordCommand {
     const { paymentRequest } = data.fields
     const response = await createResponse({ ...data, qrCodeValue: paymentRequest.value })
 
-    await modal.reply(response)
+    //await modal.reply(response)
+    modal.user.send(response)
+    await modal.reply('Private command: I sent you a direct message.')
   }
 }

@@ -18,6 +18,8 @@ export class MyAlertTxCommand implements DiscordCommand {
 
     const multiple = Object.keys(alertInfo.fields).length > 1
 
-    return createResponse(alertInfo)
+    // return createResponse(alertInfo)
+    interaction.user.send(await createResponse(alertInfo))
+    return 'Private command: I sent you a direct message.'
   }
 }
