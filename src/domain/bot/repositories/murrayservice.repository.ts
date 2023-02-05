@@ -170,6 +170,21 @@ export class MurrayServiceRepository {
     return `${this.webhookUrl}/alert-${type}/${userId}`
   }
 
+  // Cronjobs
+
+  async addCronJobs(cronjobList): Promise<any> {
+    cronjobList.forEach(async ({ webhook, type, interval }) => {
+      const url = `${this.baseUrl}/cronjobs`
+      const bodyData = {
+        webhook: webhook,
+        type: type,
+        social: 'discord',
+        interval: interval,
+      }
+      await this.postData(url, bodyData)
+    })
+  }
+
   // Base
 
   defaultError = [
