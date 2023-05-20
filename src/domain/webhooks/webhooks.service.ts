@@ -65,7 +65,7 @@ export class WebhooksService {
   async updateNewPrice(tickers: PriceBodyDto) {
     const priceChangeUSD = tickers.usd.priceChangePercent <= 0 ? '▼' : '▲'
     const priceChangeBRL = tickers.brl.priceChangePercent <= 0 ? '▼' : '▲'
-    const msg = `${priceChangeUSD}$${tickers.brl.formattedLastPrice} ${priceChangeBRL}R$${tickers.usd.formattedLastPrice}`
+    const msg = `${priceChangeUSD}$${tickers.usd.formattedLastPrice} ${priceChangeBRL}R$${tickers.brl.formattedLastPrice}`
     const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
 
     this.client.user.setStatus(status)
