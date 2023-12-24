@@ -63,14 +63,18 @@ export class WebhooksService {
   }
 
   async updateNewPrice(tickers: PriceBodyDto) {
-    const priceChangeUSD = tickers.usd.priceChangePercent <= 0 ? '▼' : '▲'
-    const priceChangeBRL = tickers.brl.priceChangePercent <= 0 ? '▼' : '▲'
-    const msg = `${priceChangeUSD}$${tickers.usd.formattedLastPrice} ${priceChangeBRL}R$${tickers.brl.formattedLastPrice}`
-    const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
+    try {
+      const priceChangeUSD = tickers.usd.priceChangePercent <= 0 ? '▼' : '▲'
+      const priceChangeBRL = tickers.brl.priceChangePercent <= 0 ? '▼' : '▲'
+      const msg = `${priceChangeUSD}$${tickers.usd.formattedLastPrice} ${priceChangeBRL}R$${tickers.brl.formattedLastPrice}`
+      const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
 
-    this.client.user.setStatus(status)
-    this.client.user.setActivity(msg)
-    this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
+      this.client.user.setStatus(status)
+      this.client.user.setActivity(msg)
+      this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - New Price: ${error}`)
+    }
   }
 
   sendOpReturn(userId: string, payload: any) {
