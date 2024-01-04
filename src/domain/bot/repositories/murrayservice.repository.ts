@@ -40,6 +40,11 @@ export class MurrayServiceRepository {
     return this.postData(url, bodyData)
   }
 
+  getRank(): Promise<any> {
+    const url = `${this.baseUrl}/payment/rank`
+    return this.getData(url)
+  }
+
   // Blockchain
 
   getAddress({ address }): Promise<any> {

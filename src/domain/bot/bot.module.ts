@@ -12,6 +12,7 @@ import {
   BlockchainCommand,
   ConvertCommand,
   DifficultyCommand,
+  FeesCommand,
   LightningStatsCommand,
   LightningTopCommand,
   MarketCapCommand,
@@ -21,12 +22,12 @@ import {
   NodeStatsCommand,
   OpReturnCommand,
   PriceCommand,
+  RankCommand,
   TipCommand,
   TransactionCommand,
 } from './commands'
 import { MurrayServiceRepository } from './repositories'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
-import { FeesCommand } from './commands/fees.command'
 
 @Module({
   imports: [DiscordModule.forFeature(), HttpModule],
@@ -61,6 +62,7 @@ import { FeesCommand } from './commands/fees.command'
     NodeStatsCommand,
     OpReturnCommand,
     PriceCommand,
+    RankCommand,
     TipCommand,
     TransactionCommand,
 
