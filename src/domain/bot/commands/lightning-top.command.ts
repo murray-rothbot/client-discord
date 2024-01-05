@@ -7,6 +7,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'lightning-top',
   description: 'Top Lightning Nodes',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class LightningTopCommand implements DiscordCommand {

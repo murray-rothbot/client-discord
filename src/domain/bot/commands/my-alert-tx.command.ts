@@ -7,6 +7,7 @@ import { MurrayServiceRepository } from '../repositories'
 @Command({
   name: 'transaction-alert-list',
   description: 'List my transaction alerts.',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class MyAlertTxCommand implements DiscordCommand {

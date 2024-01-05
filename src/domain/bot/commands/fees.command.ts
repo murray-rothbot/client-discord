@@ -7,6 +7,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'fees',
   description: 'Recommend fees information',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class FeesCommand implements DiscordCommand {

@@ -11,7 +11,13 @@ export class DiscordConfigService implements DiscordOptionsFactory {
     return {
       token: this.cfgService.get<string>('DISCORD_API_KEY'),
       discordClientOptions: {
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+        intents: [
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.MessageContent,
+          GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.GuildIntegrations,
+        ],
       },
       registerCommandOptions: [
         {

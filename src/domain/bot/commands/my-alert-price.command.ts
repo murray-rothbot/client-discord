@@ -7,6 +7,7 @@ import { MurrayServiceRepository } from '../repositories'
 @Command({
   name: 'price-alert-list',
   description: 'List my price alerts.',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class MyAlertPriceCommand implements DiscordCommand {

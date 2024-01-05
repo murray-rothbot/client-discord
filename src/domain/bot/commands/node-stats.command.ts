@@ -14,6 +14,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'node-stats',
   description: 'Show lightning node stats',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

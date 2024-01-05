@@ -7,6 +7,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'rank',
   description: 'Tip Rank',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class RankCommand implements DiscordCommand {

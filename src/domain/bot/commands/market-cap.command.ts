@@ -8,6 +8,7 @@ import { group } from 'console'
 @Command({
   name: 'market-cap',
   description: 'Market capitalization information',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class MarketCapCommand implements DiscordCommand {

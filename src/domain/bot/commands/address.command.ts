@@ -14,6 +14,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'address',
   description: 'Information about an address',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

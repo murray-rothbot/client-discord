@@ -7,6 +7,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'lightning-stats',
   description: 'Statistics about the Lightning Network',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class LightningStatsCommand implements DiscordCommand {

@@ -8,6 +8,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'difficulty',
   description: 'Difficulty adjustment and hashrate information',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class DifficultyCommand implements DiscordCommand {

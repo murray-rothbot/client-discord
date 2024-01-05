@@ -14,6 +14,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'block',
   description: 'Show bitcoin block stats',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

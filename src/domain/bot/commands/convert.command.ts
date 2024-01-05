@@ -14,6 +14,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'convert',
   description: 'Convert bitcoin <-> fiat',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

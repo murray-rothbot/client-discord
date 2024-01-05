@@ -15,6 +15,7 @@ import { ok } from 'assert'
 @Command({
   name: 'tip',
   description: 'Send a tip to Murray Rothbot! We need your help to keep the lights on!',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

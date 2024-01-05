@@ -14,6 +14,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'transaction-alert',
   description: 'Create new transaction alert',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @UsePipes(TransformPipe, ValidationPipe)
 @Injectable()

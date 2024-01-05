@@ -18,6 +18,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'opreturn',
   description: 'Write data to the blockchain',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class OpReturnCommand implements DiscordCommand {

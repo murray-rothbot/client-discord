@@ -7,6 +7,7 @@ import { createResponse } from 'src/utils/default-response'
 @Command({
   name: 'price',
   description: 'Show bitcoin fiat price',
+  defaultMemberPermissions: ['UseApplicationCommands'],
 })
 @Injectable()
 export class PriceCommand implements DiscordCommand {
