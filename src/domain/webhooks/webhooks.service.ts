@@ -16,49 +16,65 @@ export class WebhooksService {
   ) {}
 
   sendAlertPrices(userId: string, alertPrice: MessageResponseDto) {
-    this.client.users.fetch(userId).then(async (user) => {
-      user.send(await createResponse(alertPrice))
-    })
+    try {
+      this.client.users.fetch(userId).then(async (user) => {
+        user.send(await createResponse(alertPrice))
+      })
 
-    this.logger.debug(`NEW WEBHOOK - Alert Price`)
+      this.logger.debug(`NEW WEBHOOK - Alert Price`)
 
-    return true
+      return true
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - Alert Price: ${error}`)
+    }
   }
 
   sendAlertFee(userId: string, alertFee: MessageResponseDto) {
-    this.client.users.fetch(userId).then(async (user) => {
-      user.send(await createResponse(alertFee))
-    })
+    try {
+      this.client.users.fetch(userId).then(async (user) => {
+        user.send(await createResponse(alertFee))
+      })
 
-    this.logger.debug(`NEW WEBHOOK - Alert Fee`)
+      this.logger.debug(`NEW WEBHOOK - Alert Fee`)
 
-    return true
+      return true
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - Alert Fee: ${error}`)
+    }
   }
 
   sendAlertTx(userId: string, alertTx: MessageResponseDto) {
-    this.client.users.fetch(userId).then(async (user) => {
-      const expectedConfirmations = alertTx.fields.expectedConfirmations.value
-      delete alertTx.fields.expectedConfirmations
+    try {
+      this.client.users.fetch(userId).then(async (user) => {
+        const expectedConfirmations = alertTx.fields.expectedConfirmations.value
+        delete alertTx.fields.expectedConfirmations
 
-      alertTx.fields.confirmations.value = progressBar(
-        alertTx.fields.confirmations.value,
-        expectedConfirmations,
-        '🟢',
-        '🟡',
-      )
+        alertTx.fields.confirmations.value = progressBar(
+          alertTx.fields.confirmations.value,
+          expectedConfirmations,
+          '🟢',
+          '🟡',
+        )
 
-      user.send(await createResponse(alertTx))
-    })
+        user.send(await createResponse(alertTx))
+      })
 
-    this.logger.debug(`NEW WEBHOOK - Alert Tx`)
+      this.logger.debug(`NEW WEBHOOK - Alert Tx`)
 
-    return true
+      return true
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - Alert Tx: ${error}`)
+    }
   }
 
   async updateNewBlock(block: BlockBodyDto) {
-    if (block && block.height) {
-      this.client.user.setActivity(`New Block: ${block.height}`)
-      this.logger.debug(`NEW WEBHOOK - New Block: ${block.height}`)
+    try {
+      if (block && block.height) {
+        this.client.user.setActivity(`New Block: ${block.height}`)
+        this.logger.debug(`NEW WEBHOOK - New Block: ${block.height}`)
+      }
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - New Block: ${error}`)
     }
   }
 
@@ -78,20 +94,28 @@ export class WebhooksService {
   }
 
   sendOpReturn(userId: string, payload: any) {
-    this.client.users.fetch(userId).then(async (user) => {
-      user.send(await createResponse(payload))
-      this.logger.debug(`NEW WEBHOOK - OP-Return: ${userId}`)
-    })
+    try {
+      this.client.users.fetch(userId).then(async (user) => {
+        user.send(await createResponse(payload))
+        this.logger.debug(`NEW WEBHOOK - OP-Return: ${userId}`)
+      })
 
-    return true
+      return true
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - OP-Return: ${error}`)
+    }
   }
 
   sendTip(userId: string, payload: any) {
-    this.client.users.fetch(userId).then(async (user) => {
-      user.send(await createResponse(payload))
-      this.logger.debug(`NEW WEBHOOK - Tip: ${userId} - ${payload.fields.satoshis.value}`)
-    })
+    try {
+      this.client.users.fetch(userId).then(async (user) => {
+        user.send(await createResponse(payload))
+        this.logger.debug(`NEW WEBHOOK - Tip: ${userId} - ${payload.fields.satoshis.value}`)
+      })
 
-    return true
+      return true
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - Tip: ${error}`)
+    }
   }
 }
