@@ -7,6 +7,8 @@ import {
   PriceBodyDto,
   MessageParamsDto,
   MessageResponseDto,
+  FeesBodyDto,
+  MempoolBodyDto,
 } from './dto'
 import { WebhooksService } from './webhooks.service'
 
@@ -42,6 +44,16 @@ export class WebhooksController {
 
     if (sent) return { message: 'OK' }
     return { message: 'NOK' }
+  }
+
+  @Post('/new-fees')
+  updateNewFees(@Body() feesDto: FeesBodyDto) {
+    this.webhooksService.updateNewFees(feesDto)
+  }
+
+  @Post('/new-mempool')
+  updateNewMempool(@Body() mempoolDto: MempoolBodyDto) {
+    this.webhooksService.updateNewMempool(mempoolDto)
   }
 
   @Post('/new-block')

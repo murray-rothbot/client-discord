@@ -1,10 +1,10 @@
 import { InjectDiscordClient } from '@discord-nestjs/core'
 import { Injectable, Logger } from '@nestjs/common'
-import { Client, EmbedBuilder } from 'discord.js'
+import { ActivityType, Client, EmbedBuilder } from 'discord.js'
 import { progressBar } from 'src/utils'
 import { createResponse } from 'src/utils/default-response'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
-import { PriceBodyDto, BlockBodyDto, MessageResponseDto } from './dto'
+import { PriceBodyDto, BlockBodyDto, MessageResponseDto, FeesBodyDto, MempoolBodyDto } from './dto'
 
 @Injectable()
 export class WebhooksService {
@@ -67,14 +67,41 @@ export class WebhooksService {
     }
   }
 
+  async updateNewMempool(mempool: MempoolBodyDto) {
+    try {
+      if (mempool && mempool.count) {
+        this.client.user.setActivity(` ${mempool.count} txs unconfirmed`, {
+          type: ActivityType.Watching,
+        })
+        this.logger.debug(`NEW WEBHOOK - mempool txs: ${mempool.count}`)
+      }
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - mempool txs: ${error}`)
+    }
+  }
   async updateNewBlock(block: BlockBodyDto) {
     try {
       if (block && block.height) {
-        this.client.user.setActivity(`New Block: ${block.height}`)
-        this.logger.debug(`NEW WEBHOOK - New Block: ${block.height}`)
+        this.client.user.setActivity(`${block.height} block height`, {
+          type: ActivityType.Watching,
+        })
+        this.logger.debug(`NEW WEBHOOK - Block: ${block.height}`)
       }
     } catch (error) {
-      this.logger.error(`NEW WEBHOOK - New Block: ${error}`)
+      this.logger.error(`NEW WEBHOOK - Block: ${error}`)
+    }
+  }
+
+  async updateNewFees(fees: FeesBodyDto) {
+    try {
+      if (fees.fastestFee) {
+        this.client.user.setActivity(`${fees.fastestFee} sats/vByte`, {
+          type: ActivityType.Watching,
+        })
+        this.logger.debug(`NEW WEBHOOK - New Fees: ${fees.fastestFee} sats/vByte`)
+      }
+    } catch (error) {
+      this.logger.error(`NEW WEBHOOK - New Fees: ${error}`)
     }
   }
 
@@ -86,7 +113,9 @@ export class WebhooksService {
       const status = tickers.usd.priceChangePercent <= 0 ? 'dnd' : 'online'
 
       this.client.user.setStatus(status)
-      this.client.user.setActivity(msg)
+      this.client.user.setActivity(msg, {
+        type: ActivityType.Playing,
+      })
       this.logger.debug(`NEW WEBHOOK - New Price: ${msg}`)
     } catch (error) {
       this.logger.error(`NEW WEBHOOK - New Price: ${error}`)
