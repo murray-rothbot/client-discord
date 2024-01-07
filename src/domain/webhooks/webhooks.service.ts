@@ -73,10 +73,10 @@ export class WebhooksService {
         this.client.user.setActivity(` ${mempool.count} txs unconfirmed`, {
           type: ActivityType.Watching,
         })
-        this.logger.debug(`NEW WEBHOOK - mempool txs: ${mempool.count}`)
+        this.logger.debug(`NEW WEBHOOK - Mempool Info: ${mempool.count}`)
       }
     } catch (error) {
-      this.logger.error(`NEW WEBHOOK - mempool txs: ${error}`)
+      this.logger.error(`NEW WEBHOOK -  Mempool Info: ${error}`)
     }
   }
   async updateNewBlock(block: BlockBodyDto) {
