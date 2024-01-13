@@ -3,9 +3,11 @@ import { catchError, lastValueFrom, map } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
+import { WebhooksService } from 'src/domain/webhooks/webhooks.service'
 
 @Injectable()
 export class MurrayServiceRepository {
+  private readonly logger = new Logger(WebhooksService.name)
   constructor(
     private readonly httpService: HttpService,
     private readonly cfgService: ConfigService,
@@ -119,14 +121,18 @@ export class MurrayServiceRepository {
   // Alerts
 
   createFeeAlert({ userId, fee }): Promise<any> {
-    const webhook = `${this.webhookUrl}/alert-fee/${userId}`
-    const url = `${this.baseUrl}/alert/fee`
-    const bodyData = {
-      webhook,
-      fee,
-    }
+    try {
+      const webhook = `${this.webhookUrl}/alert-fee/${userId}`
+      const url = `${this.baseUrl}/alert/fee`
+      const bodyData = {
+        webhook,
+        fee,
+      }
 
-    return this.postData(url, bodyData)
+      return this.postData(url, bodyData)
+    } catch (error) {
+      this.logger.error(`CREATE ALERT FEE - Alert Fee: ${error}`)
+    }
   }
 
   getFeeAlertList({ userId }): Promise<any> {
