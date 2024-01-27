@@ -17,6 +17,7 @@ export class DiscordConfigService implements DiscordOptionsFactory {
           GatewayIntentBits.MessageContent,
           GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildIntegrations,
+          GatewayIntentBits.GuildPresences,
         ],
       },
       registerCommandOptions: [

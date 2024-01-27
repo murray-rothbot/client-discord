@@ -5,14 +5,18 @@ import { progressBar } from 'src/utils'
 import { createResponse } from 'src/utils/default-response'
 import { NumbersService } from 'src/utils/numbers/numbers.service'
 import { PriceBodyDto, BlockBodyDto, MessageResponseDto, FeesBodyDto, MempoolBodyDto } from './dto'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class WebhooksService {
+  private readonly tbdGuildId = this.cfgService.get<string>('TBD_GUILD_ID')
+
   private readonly logger = new Logger(WebhooksService.name)
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
     private readonly numbersService: NumbersService,
+    private readonly cfgService: ConfigService,
   ) {}
 
   sendAlertPrices(userId: string, alertPrice: MessageResponseDto) {
@@ -139,7 +143,16 @@ export class WebhooksService {
     try {
       this.client.users.fetch(userId).then(async (user) => {
         user.send(await createResponse(payload))
-        this.logger.debug(`NEW WEBHOOK - Tip: ${userId} - ${payload.fields.satoshis.value}`)
+        this.logger.debug(`NEW WEBHOOK - Tip: ${user.id} - ${payload.fields.satoshis.value}`)
+
+        const server = this.client.guilds.cache.get(this.tbdGuildId)
+        const memberRole = server.roles.cache.find((role) => role.name === 'Aristocrata')
+        const member = server.members.cache.get(user.id)
+
+        if (member) {
+          member.roles.add(memberRole)
+          this.logger.debug(`New Aristocrata: ${user.username}`)
+        }
       })
 
       return true
