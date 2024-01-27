@@ -18,22 +18,22 @@ export class BotService {
     const cronjobList = [
       {
         webhook: `${this.webhookUrl}/new-fees`,
-        interval: '0 * * * * *',
+        interval: '*/10 * * * * *',
         type: 'fees',
       },
       {
         webhook: `${this.webhookUrl}/new-block`,
-        interval: '15 * * * * *',
+        interval: '*/10 * * * * *',
         type: 'block',
       },
       {
         webhook: `${this.webhookUrl}/new-price`,
-        interval: '30 * * * * *',
+        interval: '*/10 * * * * *',
         type: 'price',
       },
       {
         webhook: `${this.webhookUrl}/new-mempool`,
-        interval: '45 * * * * *',
+        interval: '*/10 * * * * *',
         type: 'mempool',
       },
     ]
