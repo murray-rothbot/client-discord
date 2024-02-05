@@ -142,10 +142,10 @@ export class MurrayServiceRepository {
   }
 
   createPriceAlert({ userId, price, currency }): Promise<any> {
-    const webhook = `${this.webhookUrl}/alert-price/${userId}`
+    const webhookUrl = `${this.webhookUrl}/alert-price/${userId}`
     const url = `${this.baseUrl}/alert/price`
     const bodyData = {
-      webhook,
+      webhookUrl,
       price,
       currency,
     }
