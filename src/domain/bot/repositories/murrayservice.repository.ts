@@ -153,10 +153,14 @@ export class MurrayServiceRepository {
     return this.postData(url, bodyData)
   }
 
-  getPriceAlertList({ userId }): Promise<any> {
-    const webhook = this.createWebhookURL('price', userId)
-    const url = `${this.baseUrl}/alert/price/?webhook=${encodeURIComponent(webhook)}`
-    return this.getData(url)
+  getPriceAlertList({ userId }): any {
+    try {
+      const webhook = this.createWebhookURL('price', userId)
+      const url = `${this.baseUrl}/alert/price/?webhookUrl=${encodeURIComponent(webhook)}`
+      return this.getData(url)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   createTransactionAlert({ userId, transaction, confirmations }): Promise<any> {
@@ -232,7 +236,7 @@ export class MurrayServiceRepository {
         map((response: AxiosResponse<any>) => {
           return response.data
         }),
-        catchError(async () => {
+        catchError(async (err) => {
           Logger.error(`GET ${url}`)
           throw this.defaultError
         }),
