@@ -122,10 +122,10 @@ export class MurrayServiceRepository {
 
   createFeeAlert({ userId, fee }): Promise<any> {
     try {
-      const webhook = `${this.webhookUrl}/alert-fee/${userId}`
+      const webhookUrl = `${this.webhookUrl}/alert-fee/${userId}`
       const url = `${this.baseUrl}/alert/fee`
       const bodyData = {
-        webhook,
+        webhookUrl,
         fee,
       }
 
@@ -136,9 +136,13 @@ export class MurrayServiceRepository {
   }
 
   getFeeAlertList({ userId }): Promise<any> {
-    const webhook = this.createWebhookURL('fee', userId)
-    const url = `${this.baseUrl}/alert/fee/?webhook=${encodeURIComponent(webhook)}`
-    return this.getData(url)
+    try {
+      const webhook = this.createWebhookURL('fee', userId)
+      const url = `${this.baseUrl}/alert/fee/?webhookUrl=${encodeURIComponent(webhook)}`
+      return this.getData(url)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   createPriceAlert({ userId, price, currency }): Promise<any> {
@@ -213,7 +217,6 @@ export class MurrayServiceRepository {
 
   protected postData(url: string, bodyData: {}): Promise<any> {
     Logger.debug(`POST ${url}`)
-    // Logger.debug(JSON.stringify(bodyData, null, 2))
 
     return lastValueFrom(
       this.httpService.post(url, bodyData).pipe(
@@ -229,18 +232,22 @@ export class MurrayServiceRepository {
   }
 
   protected getData(url: string): Promise<any> {
-    Logger.debug(`GET ${url}`)
+    try {
+      Logger.debug(`GET ${url}`)
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async (err) => {
-          Logger.error(`GET ${url}`)
-          throw this.defaultError
-        }),
-      ),
-    )
+      return lastValueFrom(
+        this.httpService.get(url).pipe(
+          map((response: AxiosResponse<any>) => {
+            return response.data
+          }),
+          catchError(async (err) => {
+            Logger.error(`GET ${url}`)
+            throw this.defaultError
+          }),
+        ),
+      )
+    } catch (error) {
+      console.log(error)
+    }
   }
 }

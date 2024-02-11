@@ -14,13 +14,17 @@ export class MyAlertFeeCommand implements DiscordCommand {
   constructor(private readonly repository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
-    const userId = interaction.user.id
-    const { data: alertInfo } = await this.repository.getFeeAlertList({ userId })
+    try {
+      const userId = interaction.user.id
+      const { data: alertInfo } = await this.repository.getFeeAlertList({ userId })
 
-    alertInfo.fields.alerts.value = Object.keys(alertInfo.fields.alerts.value)
-      .map((k) => alertInfo.fields.alerts.value[k].description)
-      .join('\n')
+      alertInfo.fields.alerts.value = Object.keys(alertInfo.fields.alerts.value)
+        .map((k) => alertInfo.fields.alerts.value[k].description)
+        .join('\n')
 
-    return createResponse(alertInfo)
+      return createResponse(alertInfo)
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
