@@ -8,7 +8,7 @@ export class AlertTxDto {
     required: true,
   })
   @Length(64, 64)
-  transaction: string
+  txId: string
 
   @Param({
     name: 'confirmations',

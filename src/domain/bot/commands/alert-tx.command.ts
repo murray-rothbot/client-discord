@@ -26,14 +26,13 @@ export class AlertTxCommand implements DiscordTransformedCommand<AlertTxDto> {
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
     const userId = interaction.user.id
-    const { transaction, confirmations } = dto
+    const { txId, confirmations } = dto
     const { data: alertInfo } = await this.repository.createTransactionAlert({
       userId,
-      transaction,
+      txId,
       confirmations,
     })
 
-    // return createResponse(alertInfo)
     interaction.user.send(await createResponse(alertInfo))
     return 'Private command: I sent you a direct message.'
   }

@@ -25,28 +25,32 @@ export class TransactionCommand implements DiscordTransformedCommand<Transaction
     @Payload() dto: TransactionDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const { transaction } = dto
-    const txInfo = await this.repository.getTransaction({ transaction })
+    try {
+      const { transaction } = dto
+      const txInfo = await this.repository.getTransaction({ transaction })
 
-    if (!txInfo) {
-      throw [
-        {
-          property: 'transaction id',
-          constraints: {
-            isValid: 'transaction id must be valid',
+      if (!txInfo) {
+        throw [
+          {
+            property: 'transaction id',
+            constraints: {
+              isValid: 'transaction id must be valid',
+            },
           },
-        },
-      ]
+        ]
+      }
+
+      const confirmed = txInfo.data.fields.confirmed.value
+      if (confirmed) {
+        const rbf = txInfo.data.fields.rbf.value
+        txInfo.data.fields.confirmed.value += `${rbf ? ' (RBF)' : ' (~~RBF~~)'}`
+      }
+
+      delete txInfo.data.fields.rbf
+
+      return createResponse(txInfo.data, (key, inline) => key !== 'hash')
+    } catch (error) {
+      console.log(error)
     }
-
-    const confirmed = txInfo.data.fields.confirmed.value
-    if (confirmed) {
-      const rbf = txInfo.data.fields.rbf.value
-      txInfo.data.fields.confirmed.value += `${rbf ? ' (RBF)' : ' (~~RBF~~)'}`
-    }
-
-    delete txInfo.data.fields.rbf
-
-    return createResponse(txInfo.data, (key, inline) => key !== 'hash')
   }
 }

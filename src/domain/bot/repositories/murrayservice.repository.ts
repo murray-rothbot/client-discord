@@ -167,12 +167,12 @@ export class MurrayServiceRepository {
     }
   }
 
-  createTransactionAlert({ userId, transaction, confirmations }): Promise<any> {
-    const webhook = this.createWebhookURL('transaction', userId)
+  createTransactionAlert({ userId, txId, confirmations }): Promise<any> {
+    const webhookUrl = this.createWebhookURL('transaction', userId)
     const url = `${this.baseUrl}/alert/transaction`
     const bodyData = {
-      webhook,
-      transaction,
+      webhookUrl,
+      txId,
       confirmations,
     }
 
@@ -181,7 +181,7 @@ export class MurrayServiceRepository {
 
   getTransactionAlertList({ userId }): Promise<any> {
     const webhook = this.createWebhookURL('transaction', userId)
-    const url = `${this.baseUrl}/alert/transaction?webhook=${encodeURIComponent(webhook)}`
+    const url = `${this.baseUrl}/alert/transaction?webhookUrl=${encodeURIComponent(webhook)}`
     return this.getData(url)
   }
 

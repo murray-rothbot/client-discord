@@ -15,6 +15,7 @@ export class MyAlertTxCommand implements DiscordCommand {
 
   async handler(interaction: CommandInteraction): Promise<any> {
     const userId = interaction.user.id
+
     const { data: alertInfo } = await this.repository.getTransactionAlertList({ userId })
 
     const multiple = Object.keys(alertInfo.fields).length > 1
