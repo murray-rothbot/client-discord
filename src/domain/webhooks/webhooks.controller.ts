@@ -48,33 +48,57 @@ export class WebhooksController {
 
   @Post('/new-fees')
   updateNewFees(@Body() feesDto: FeesBodyDto) {
-    this.webhooksService.updateNewFees(feesDto)
+    try {
+      this.webhooksService.updateNewFees(feesDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Post('/new-mempool')
   updateNewMempool(@Body() mempoolDto: MempoolBodyDto) {
-    this.webhooksService.updateNewMempool(mempoolDto)
+    try {
+      this.webhooksService.updateNewMempool(mempoolDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Post('/new-block')
   updateNewBlock(@Body() blockDto: BlockBodyDto) {
-    this.webhooksService.updateNewBlock(blockDto)
+    try {
+      this.webhooksService.updateNewBlock(blockDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Post('/new-price')
   updateNewPrice(@Body() priceDto: PriceBodyDto) {
-    this.webhooksService.updateNewPrice(priceDto)
+    try {
+      this.webhooksService.updateNewPrice(priceDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Post('/op-return/:userId')
   sendOpReturn(@Param() params: MessageParamsDto, @Body() opreturnDto: MessageResponseDto) {
-    const { userId } = params
-    this.webhooksService.sendOpReturn(userId, opreturnDto)
+    try {
+      const { userId } = params
+      this.webhooksService.sendOpReturn(userId, opreturnDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Post('/tip/:userId')
   sendTip(@Param() params: MessageParamsDto, @Body() tipDto: MessageResponseDto) {
-    const { userId } = params
-    this.webhooksService.sendTip(userId, tipDto)
+    try {
+      const { userId } = params
+      this.webhooksService.sendTip(userId, tipDto)
+    } catch (error) {
+      console.log(error)
+    }
   }
 }

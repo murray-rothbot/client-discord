@@ -192,16 +192,20 @@ export class MurrayServiceRepository {
   // Cronjobs
 
   async addCronJobs(cronjobList): Promise<any> {
-    cronjobList.forEach(async ({ webhook, type, interval }) => {
-      const url = `${this.baseUrl}/cronjobs`
-      const bodyData = {
-        webhook: webhook,
-        type: type,
-        social: 'discord',
-        interval: interval,
-      }
-      await this.postData(url, bodyData)
-    })
+    try {
+      cronjobList.forEach(async ({ webhook, type, interval }) => {
+        const url = `${this.baseUrl}/cronjobs`
+        const bodyData = {
+          webhook: webhook,
+          type: type,
+          social: 'discord',
+          interval: interval,
+        }
+        await this.postData(url, bodyData)
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   // Base
@@ -216,19 +220,23 @@ export class MurrayServiceRepository {
   ]
 
   protected postData(url: string, bodyData: {}): Promise<any> {
-    Logger.debug(`POST ${url}`)
+    try {
+      Logger.debug(`POST ${url}`)
 
-    return lastValueFrom(
-      this.httpService.post(url, bodyData).pipe(
-        map((response: AxiosResponse<any>) => {
-          return response.data
-        }),
-        catchError(async () => {
-          Logger.error(`POST ${url}\n${JSON.stringify(bodyData, null, 2)}`)
-          throw this.defaultError
-        }),
-      ),
-    )
+      return lastValueFrom(
+        this.httpService.post(url, bodyData).pipe(
+          map((response: AxiosResponse<any>) => {
+            return response.data
+          }),
+          catchError(async () => {
+            Logger.error(`POST ${url}\n${JSON.stringify(bodyData, null, 2)}`)
+            throw this.defaultError
+          }),
+        ),
+      )
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   protected getData(url: string): Promise<any> {

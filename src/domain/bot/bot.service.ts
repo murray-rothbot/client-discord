@@ -14,31 +14,35 @@ export class BotService {
 
   // add cronjob list
   addCronjobList() {
-    // cronjob list
-    const cronjobList = [
-      {
-        webhook: `${this.webhookUrl}/new-fees`,
-        interval: '*/10 * * * * *',
-        type: 'fees',
-      },
-      {
-        webhook: `${this.webhookUrl}/new-block`,
-        interval: '*/10 * * * * *',
-        type: 'block',
-      },
-      {
-        webhook: `${this.webhookUrl}/new-price`,
-        interval: '*/10 * * * * *',
-        type: 'price',
-      },
-      {
-        webhook: `${this.webhookUrl}/new-mempool`,
-        interval: '*/10 * * * * *',
-        type: 'mempool',
-      },
-    ]
+    try {
+      // cronjob list
+      const cronjobList = [
+        {
+          webhook: `${this.webhookUrl}/new-fees`,
+          interval: '*/10 * * * * *',
+          type: 'fees',
+        },
+        {
+          webhook: `${this.webhookUrl}/new-block`,
+          interval: '*/10 * * * * *',
+          type: 'block',
+        },
+        {
+          webhook: `${this.webhookUrl}/new-price`,
+          interval: '*/10 * * * * *',
+          type: 'price',
+        },
+        {
+          webhook: `${this.webhookUrl}/new-mempool`,
+          interval: '*/10 * * * * *',
+          type: 'mempool',
+        },
+      ]
 
-    // add cronjob list
-    this.murrayService.addCronJobs(cronjobList)
+      // add cronjob list
+      this.murrayService.addCronJobs(cronjobList)
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
