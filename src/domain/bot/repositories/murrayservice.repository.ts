@@ -19,15 +19,19 @@ export class MurrayServiceRepository {
   // Paid Services
 
   getInvoiceTip({ satoshis, user }): Promise<any> {
-    const url = `${this.baseUrl}/payment/invoice/tip`
-    const bodyData = {
-      webhook: `${this.webhookUrl}/tip/${user.id}`,
-      satoshis,
-      userId: user.id,
-      social: 'discord',
-    }
+    try {
+      const url = `${this.baseUrl}/payment/invoice/tip`
+      const bodyData = {
+        webhook: `${this.webhookUrl}/tip/${user.id}`,
+        satoshis,
+        userId: user.id,
+        social: 'discord',
+      }
 
-    return this.postData(url, bodyData)
+      return this.postData(url, bodyData)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   getInvoiceOpReturn({ message, user }): Promise<any> {

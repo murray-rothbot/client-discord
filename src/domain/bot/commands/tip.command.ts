@@ -26,30 +26,35 @@ export class TipCommand implements DiscordTransformedCommand<TipDto> {
     @Payload() dto: TipDto,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<any> {
-    const { satoshis } = dto
-    const { user } = interaction
+    try {
+      const { satoshis } = dto
+      const { user } = interaction
 
-    const invoiceInfo = await this.murrayRepository.getInvoiceTip({
-      satoshis,
-      user,
-    })
+      const invoiceInfo = await this.murrayRepository.getInvoiceTip({
+        satoshis,
+        user,
+      })
 
-    if (invoiceInfo === null) {
-      throw [
-        {
-          property: 'invoice',
-          constraints: {
-            isValid: 'We could not generate an invoice, try again later!',
+      if (invoiceInfo === null) {
+        throw [
+          {
+            property: 'invoice',
+            constraints: {
+              isValid: 'We could not generate an invoice, try again later!',
+            },
           },
-        },
-      ]
+        ]
+      }
+
+      const { data } = invoiceInfo
+      const { paymentRequest } = data.fields
+
+      return createResponse({ ...data, qrCodeValue: paymentRequest.value })
+      // interaction.user.send(await createResponse({ ...data, qrCodeValue: paymentRequest.value }))
+      // return 'Private command: I sent you a direct message.'
+    } catch (error) {
+      console.log(error)
+      return 'error'
     }
-
-    const { data } = invoiceInfo
-    const { paymentRequest } = data.fields
-
-    // return createResponse({ ...data, qrCodeValue: paymentRequest.value })
-    interaction.user.send(await createResponse({ ...data, qrCodeValue: paymentRequest.value }))
-    return 'Private command: I sent you a direct message.'
   }
 }

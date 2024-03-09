@@ -78,50 +78,54 @@ export async function createResponse(
   }: DefaultResponseI,
   inlineFunc = (key, value) => value,
 ) {
-  const fieldsArr = []
-  const files = []
+  try {
+    const fieldsArr = []
+    const files = []
 
-  Object.keys(fields).forEach((key) => addField(fieldsArr, key, fields[key], inlineFunc))
+    Object.keys(fields).forEach((key) => addField(fieldsArr, key, fields[key], inlineFunc))
 
-  if (qrCodeValue) {
-    const fileBuff = await QRCode.toDataURL(qrCodeValue)
-      .then((url: string) => {
-        return Buffer.from(url.split(',')[1], 'base64')
-      })
-      .catch((err: any) => {
-        console.error(err)
-      })
-    const file = new AttachmentBuilder(fileBuff)
-    file.setName('qr.png')
-    files.push(file)
-  }
+    if (qrCodeValue) {
+      const fileBuff = await QRCode.toDataURL(qrCodeValue)
+        .then((url: string) => {
+          return Buffer.from(url.split(',')[1], 'base64')
+        })
+        .catch((err: any) => {
+          console.error(err)
+        })
+      const file = new AttachmentBuilder(fileBuff)
+      file.setName('qr.png')
+      files.push(file)
+    }
 
-  // Allow this till we finnish the refactoring, please
-  // console.log(JSON.stringify(fields, null, 2))
+    // Allow this till we finnish the refactoring, please
+    // console.log(JSON.stringify(fields, null, 2))
 
-  return {
-    content: '',
-    tts: false,
-    files,
-    embeds: [
-      {
-        title,
-        description,
-        color,
-        timestamp: new Date().toISOString(),
-        fields: fieldsArr,
-        image: files ? { url: 'attachment://qr.png' } : null,
-        thumbnail: null,
-        author: {
-          name: ``,
-          url: `https://murrayrothbot.com/`,
-          icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+    return {
+      content: '',
+      tts: false,
+      files,
+      embeds: [
+        {
+          title,
+          description,
+          color,
+          timestamp: new Date().toISOString(),
+          fields: fieldsArr,
+          image: files ? { url: 'attachment://qr.png' } : null,
+          thumbnail: null,
+          author: {
+            name: ``,
+            url: `https://murrayrothbot.com/`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
+          footer: {
+            text: `Powered by Murray Rothbot`,
+            icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
+          },
         },
-        footer: {
-          text: `Powered by Murray Rothbot`,
-          icon_url: `https://murrayrothbot.com/murray-rothbot2.png`,
-        },
-      },
-    ],
+      ],
+    }
+  } catch (error) {
+    console.log(error)
   }
 }

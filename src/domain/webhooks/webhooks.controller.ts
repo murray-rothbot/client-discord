@@ -21,29 +21,41 @@ export class WebhooksController {
     @Param() params: AlertPriceRequestDto,
     @Body() alertPriceDto: MessageResponseDto,
   ) {
-    const { userId } = params
-    const sent = this.webhooksService.sendAlertPrices(userId, alertPriceDto)
+    try {
+      const { userId } = params
+      const sent = this.webhooksService.sendAlertPrices(userId, alertPriceDto)
 
-    if (sent) return { message: 'OK' }
-    return { message: 'NOK' }
+      if (sent) return { message: 'OK' }
+      return { message: 'NOK' }
+    } catch (error) {
+      return { message: 'NOK' }
+    }
   }
 
   @Post('/alert-fee/:userId')
   sendAlertFee(@Param() params: AlertFeeRequestDto, @Body() alertFeeDto: MessageResponseDto) {
-    const { userId } = params
-    const sent = this.webhooksService.sendAlertFee(userId, alertFeeDto)
+    try {
+      const { userId } = params
+      const sent = this.webhooksService.sendAlertFee(userId, alertFeeDto)
 
-    if (sent) return { message: 'OK' }
-    return { message: 'NOK' }
+      if (sent) return { message: 'OK' }
+      return { message: 'NOK' }
+    } catch (error) {
+      return { message: 'NOK' }
+    }
   }
 
   @Post('/alert-transaction/:userId')
   sendAlertTx(@Param() params: AlertTxRequestDto, @Body() alertTxDto: MessageResponseDto) {
-    const { userId } = params
-    const sent = this.webhooksService.sendAlertTx(userId, alertTxDto)
+    try {
+      const { userId } = params
+      const sent = this.webhooksService.sendAlertTx(userId, alertTxDto)
 
-    if (sent) return { message: 'OK' }
-    return { message: 'NOK' }
+      if (sent) return { message: 'OK' }
+      return { message: 'NOK' }
+    } catch (error) {
+      return { message: 'NOK' }
+    }
   }
 
   @Post('/new-fees')

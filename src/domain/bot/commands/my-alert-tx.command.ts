@@ -14,14 +14,18 @@ export class MyAlertTxCommand implements DiscordCommand {
   constructor(private readonly repository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<any> {
-    const userId = interaction.user.id
+    try {
+      const userId = interaction.user.id
 
-    const { data: alertInfo } = await this.repository.getTransactionAlertList({ userId })
+      const { data: alertInfo } = await this.repository.getTransactionAlertList({ userId })
 
-    const multiple = Object.keys(alertInfo.fields).length > 1
+      // const multiple = Object.keys(alertInfo.fields).length > 1
 
-    // return createResponse(alertInfo)
-    interaction.user.send(await createResponse(alertInfo))
-    return 'Private command: I sent you a direct message.'
+      return await createResponse(alertInfo)
+      // interaction.user.send(await createResponse(alertInfo))
+      // return 'Private command: I sent you a direct message.'
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
