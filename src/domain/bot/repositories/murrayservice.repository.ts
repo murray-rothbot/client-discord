@@ -76,8 +76,8 @@ export class MurrayServiceRepository {
     return this.getData(url)
   }
 
-  getFee(): Promise<any> {
-    const url = `${this.baseUrl}/blockchain/fees`
+  getFeeRecommended(): Promise<any> {
+    const url = `${this.baseUrl}/blockchain/fees-recommended`
     return this.getData(url)
   }
 

@@ -14,7 +14,7 @@ export class FeesCommand implements DiscordCommand {
   constructor(private readonly repository: MurrayServiceRepository) {}
 
   async handler(interaction: CommandInteraction): Promise<{}> {
-    const feesInfo = await this.repository.getFee()
+    const feesInfo = await this.repository.getFeeRecommended()
 
     const keys: any[] = Object.keys(feesInfo.data.fields)
     feesInfo.data.fields = keys.reduce((obj, key, index) => {
