@@ -104,13 +104,13 @@ export class WebhooksController {
     }
   }
 
-  @Post('/tip/:userId')
-  sendTip(@Param() params: MessageParamsDto, @Body() tipDto: MessageResponseDto) {
-    try {
-      const { userId } = params
-      this.webhooksService.sendTip(userId, tipDto)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  // @Post('/tip/:userId')
+  // sendTip(@Param() params: MessageParamsDto, @Body() tipDto: MessageResponseDto) {
+  //   try {
+  //     const { userId } = params
+  //     this.webhooksService.sendTip(userId, tipDto)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 }

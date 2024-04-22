@@ -22,8 +22,8 @@ import {
   NodeStatsCommand,
   OpReturnCommand,
   PriceCommand,
-  RankCommand,
-  TipCommand,
+  // RankCommand,
+  // TipCommand,
   TransactionCommand,
 } from './commands'
 import { MurrayServiceRepository } from './repositories'
@@ -62,8 +62,8 @@ import { NumbersService } from 'src/utils/numbers/numbers.service'
     NodeStatsCommand,
     OpReturnCommand,
     PriceCommand,
-    RankCommand,
-    TipCommand,
+    // RankCommand,
+    // TipCommand,
     TransactionCommand,
 
     // Helpers
