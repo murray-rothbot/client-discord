@@ -9,13 +9,13 @@ export const checkPrices = {
     try {
       const url = `${SERVICE_MURRAY_URL}/prices/raw`;
       const result = await axios.get(url);
-      const { data } = result.data;
+      const fields = result?.data?.data;
 
-      if (client.user) {
-        const priceChangeUSD = data.USD.priceChangePercent <= 0 ? "▼" : "▲";
-        const priceChangeBRL = data.BRL.priceChangePercent <= 0 ? "▼" : "▲";
-        const msg = `${priceChangeUSD}$${data.USD.formattedLastPrice} ${priceChangeBRL}R$${data.BRL.formattedLastPrice}`;
-        const status = data.USD.priceChangePercent <= 0 ? "dnd" : "online";
+      if (fields && client.user) {
+        const priceChangeUSD = fields.USD.priceChangePercent <= 0 ? "▼" : "▲";
+        const priceChangeBRL = fields.BRL.priceChangePercent <= 0 ? "▼" : "▲";
+        const msg = `${priceChangeUSD}$${fields.USD.formattedLastPrice} ${priceChangeBRL}R$${fields.BRL.formattedLastPrice}`;
+        const status = fields.USD.priceChangePercent <= 0 ? "dnd" : "online";
 
         client.user.setStatus(status);
         client.user.setActivity(msg, {
