@@ -11,10 +11,11 @@ export const checkFees = {
       const result = await axios.get(url);
       const { data } = result.data;
 
-      const fastestFee = `fees: ${data.fields.fastestFee.value}`;
+      const stripUnit = (value: string) => value.replace(" sats/vByte", "");
+      const fastestFee = stripUnit(data.fields.fastestFee.value);
 
       if (client.user) {
-        client.user.setActivity(fastestFee, {
+        client.user.setActivity(`fees: ${fastestFee} sat/vB`, {
           type: ActivityType.Watching,
         });
       }
