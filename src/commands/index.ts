@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 
 import { deployFeesCommand, feesCommand } from "./_fees";
 import { deployPricesCommand, pricesCommand } from "./_prices";
@@ -19,7 +19,7 @@ import { addressCommand, deployAddressCommand } from "./_address";
 import { deployTransactionCommand, transactionCommand } from "./_transaction";
 
 interface CommandHandlers {
-  [key: string]: (interaction: CommandInteraction) => Promise<void>;
+  [key: string]: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }
 
 export const commands = {
