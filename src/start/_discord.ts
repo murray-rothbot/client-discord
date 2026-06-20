@@ -24,9 +24,13 @@ export const Discord = async (): Promise<Client | null> => {
       ],
     });
 
-    client.login(DISCORD_TOKEN);
+    client.login(DISCORD_TOKEN).catch((error) => {
+      console.error("Discord login failed:", error);
+    });
 
-    await deployCommands();
+    deployCommands().catch((error) => {
+      console.error("Discord command deploy failed:", error);
+    });
 
     return client;
   } catch (error) {
