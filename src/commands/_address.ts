@@ -1,4 +1,4 @@
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import axios from "axios";
 import { Utils } from "../utils";
 
@@ -17,7 +17,7 @@ export const deployAddressCommand = () => {
 };
 
 export async function addressCommand(
-  interaction: CommandInteraction
+  interaction: ChatInputCommandInteraction
 ): Promise<void> {
   try {
     const { options } = interaction;

@@ -1,4 +1,4 @@
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import axios from "axios";
 import { Utils } from "../utils";
 
@@ -11,7 +11,7 @@ export const deployLightningTopCommand = () => {
 };
 
 export async function lightningTopCommand(
-  interaction: CommandInteraction
+  interaction: ChatInputCommandInteraction
 ): Promise<void> {
   try {
     const url = `${SERVICE_MURRAY_URL}/lightning/top`;

@@ -10,7 +10,7 @@ export const interactionCreate = async ({
   try {
     client.on("interactionCreate", async (interaction) => {
       try {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
 
         const { commandName } = interaction;
         const commandHandler = commands.commands[commandName];
