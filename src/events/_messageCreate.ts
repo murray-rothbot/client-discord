@@ -74,7 +74,7 @@ const resolveMurrayAiThreadQuestionAuthorId = async (
   if (cachedAuthorId) return cachedAuthorId;
 
   const fetchedMessages = await channel.messages
-    ?.fetch?.({ limit: 10 })
+    ?.fetch?.({ limit: 50 })
     .catch(() => null);
   const values = typeof fetchedMessages?.values === "function"
     ? fetchedMessages.values()
