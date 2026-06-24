@@ -9,6 +9,7 @@ import {
   getMurrayAiAristocrataBetaConfig,
   isMurrayAiAristocrataBetaEligible,
   formatMurrayAiPublicAnswer,
+  findMurrayAiQuestionAuthorIdInThreadIntro,
   canUseMurrayAiToday,
   getMurrayAiPlan,
   isMurrayAiAllowedGuildContext,
@@ -275,5 +276,24 @@ const publicAnswer = formatMurrayAiPublicAnswer({
 });
 assert.ok(publicAnswer.startsWith("🧠 **Pergunta de Miguel:** oq sao drivechains?"));
 assert.ok(publicAnswer.includes("Drivechains são sidechains"));
+
+assert.equal(
+  findMurrayAiQuestionAuthorIdInThreadIntro([
+    { author: { bot: true, id: "bot-1" }, content: "Pode continuar a conversa aqui na thread — <@1234567890> pode fazer follow-up sem repetir `/ask`." },
+  ], "bot-1"),
+  "1234567890",
+);
+assert.equal(
+  findMurrayAiQuestionAuthorIdInThreadIntro([
+    { author: { bot: true, id: "bot-1" }, content: "Pode continuar a conversa aqui na thread — <@!987654321> pode fazer follow-up sem repetir `/ask`." },
+  ], "bot-1"),
+  "987654321",
+);
+assert.equal(
+  findMurrayAiQuestionAuthorIdInThreadIntro([
+    { author: { bot: false, id: "user-1" }, content: "<@111> texto aleatório" },
+  ], "bot-1"),
+  undefined,
+);
 
 console.log("murrayAi tests passed");

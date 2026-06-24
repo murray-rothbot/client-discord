@@ -4,7 +4,9 @@ import {
   buildMurrayAiGuildOnlyMessage,
   formatMurrayAiPublicAnswer,
   isMurrayAiAllowedGuildContext,
+  findMurrayAiQuestionAuthorIdInThreadIntro,
   getMurrayAiThreadQuestionAuthor,
+  registerMurrayAiThreadQuestionAuthor,
   isMurrayAiThreadName,
   shouldAnswerMurrayAiMentionMessage,
   shouldAnswerMurrayAiThreadMessage,
@@ -64,6 +66,24 @@ const maybeAnswerMurrayAiMention = async (
   return true;
 };
 
+const resolveMurrayAiThreadQuestionAuthorId = async (
+  channel: any,
+  client: Client,
+): Promise<string | undefined> => {
+  const cachedAuthorId = getMurrayAiThreadQuestionAuthor(channel.id);
+  if (cachedAuthorId) return cachedAuthorId;
+
+  const fetchedMessages = await channel.messages
+    ?.fetch?.({ limit: 10 })
+    .catch(() => null);
+  const values = typeof fetchedMessages?.values === "function"
+    ? fetchedMessages.values()
+    : [];
+  const recoveredAuthorId = findMurrayAiQuestionAuthorIdInThreadIntro(values, client.user?.id);
+  if (recoveredAuthorId) registerMurrayAiThreadQuestionAuthor(channel.id, recoveredAuthorId);
+  return recoveredAuthorId;
+};
+
 const maybeAnswerMurrayAiThread = async (
   message: Message,
   client: Client,
@@ -85,7 +105,7 @@ const maybeAnswerMurrayAiThread = async (
     repliesToOtherUser = Boolean(referencedMessage && referencedMessage.author.id !== client.user.id);
   }
 
-  const questionAuthorId = getMurrayAiThreadQuestionAuthor(channel.id);
+  const questionAuthorId = await resolveMurrayAiThreadQuestionAuthorId(channel, client);
   const mentionsOtherUsers = client.user
     ? message.mentions.users.some((user) => user.id !== client.user!.id)
     : message.mentions.users.size > 0;

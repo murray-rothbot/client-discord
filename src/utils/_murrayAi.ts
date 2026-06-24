@@ -139,6 +139,19 @@ export const registerMurrayAiThreadQuestionAuthor = (threadId: string, userId: s
 export const getMurrayAiThreadQuestionAuthor = (threadId: string): string | undefined =>
   murrayAiThreadQuestionAuthorByThreadId.get(threadId);
 
+export const findMurrayAiQuestionAuthorIdInThreadIntro = (
+  messages: Iterable<{ author?: { bot?: boolean; id?: string }; content?: string }>,
+  botUserId?: string,
+): string | undefined => {
+  for (const message of messages) {
+    if (!message.author?.bot) continue;
+    if (botUserId && message.author.id !== botUserId) continue;
+    const match = message.content?.match(/Pode continuar a conversa aqui na thread[\s\S]*?<@!?(\d+)>[\s\S]*?follow-up sem repetir/i);
+    if (match?.[1]) return match[1];
+  }
+  return undefined;
+};
+
 
 
 export const isMurrayAiAllowedGuildContext = (
