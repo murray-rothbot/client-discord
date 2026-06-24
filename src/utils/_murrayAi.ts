@@ -6,6 +6,12 @@ export interface MurrayAiPlan {
   maxAnswerChars: number;
 }
 
+export interface MurrayAiAristocrataBetaConfig {
+  enabled: boolean;
+  roleName: string;
+  dailyAskLimit: number;
+}
+
 export interface MurrayAiContextMessage {
   authorName: string;
   content: string;
@@ -25,6 +31,36 @@ export const canUseMurrayAiToday = (
   usedToday: number,
   plan: MurrayAiPlan = getMurrayAiPlan(),
 ): boolean => usedToday < plan.dailyAskLimit;
+
+const parseBooleanFlag = (value: string | undefined, defaultValue: boolean): boolean => {
+  if (value === undefined) return defaultValue;
+  return !["0", "false", "no", "off", "disabled"].includes(value.trim().toLowerCase());
+};
+
+export const getMurrayAiAristocrataBetaConfig = (): MurrayAiAristocrataBetaConfig => ({
+  enabled: parseBooleanFlag(process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED, true),
+  roleName: process.env.MURRAY_AI_ARISTOCRATA_BETA_ROLE_NAME || "Aristocrata",
+  dailyAskLimit: Number(process.env.MURRAY_AI_ARISTOCRATA_BETA_DAILY_LIMIT || 1),
+});
+
+export const isMurrayAiAristocrataBetaEligible = (
+  roleNames: string[] = [],
+  config: MurrayAiAristocrataBetaConfig = getMurrayAiAristocrataBetaConfig(),
+): boolean =>
+  config.enabled && roleNames.some((roleName) => roleName.toLowerCase() === config.roleName.toLowerCase());
+
+export const buildMurrayAiAristocrataBetaCta = (
+  config: MurrayAiAristocrataBetaConfig = getMurrayAiAristocrataBetaConfig(),
+): string =>
+  [
+    "🎩🧠 **Promo beta test do Murray AI para Aristocratas!**",
+    "",
+    `Durante essa promoção, Aristocratas têm **${config.dailyAskLimit} pergunta grátis por dia** no \`/ask\` para testar a feature antes de assinar Oligarca + Murray AI.`,
+    "É um teasing do beta: usa, testa, quebra, manda feedback e vê se curte 😄",
+    "",
+    "Quer uso completo? Use `/oligarcas meses:1` para liberar o plano com mais perguntas por dia.",
+  ].join("\n");
+
 
 export const sanitizeMurrayAiAnswer = (value: string): string =>
   value.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");

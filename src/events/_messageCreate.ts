@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import { askMurrayAiQuestion, sendDiscordMessageChunks } from "../commands/_ask";
+import { askMurrayAiQuestion, extractMemberRoleNames, sendDiscordMessageChunks } from "../commands/_ask";
 import {
   buildMurrayAiGuildOnlyMessage,
   formatMurrayAiPublicAnswer,
@@ -42,6 +42,7 @@ const maybeAnswerMurrayAiMention = async (
     userId: message.author.id,
     channel: message.channel,
     question: question || message.content,
+    memberRoleNames: extractMemberRoleNames(message.member),
   });
 
   const answer = result.active && !result.limited
@@ -112,6 +113,7 @@ const maybeAnswerMurrayAiThread = async (
     userId: message.author.id,
     channel,
     question: question || message.content,
+    memberRoleNames: extractMemberRoleNames(message.member),
   });
 
   const chunks = splitDiscordMessage(result.answer);

@@ -1,10 +1,13 @@
-import { getOligarcaStatusBaseUrl, isMurrayAiUnlimitedUser } from "../src/commands/_ask";
+import { askMurrayAiQuestion, getOligarcaStatusBaseUrl, isMurrayAiUnlimitedUser } from "../src/commands/_ask";
 import assert from "assert";
 import {
   buildMurrayAiContext,
   buildMurrayAiFallbackAnswer,
   buildMurrayAiPrompt,
   buildMurrayAiThreadName,
+  buildMurrayAiAristocrataBetaCta,
+  getMurrayAiAristocrataBetaConfig,
+  isMurrayAiAristocrataBetaEligible,
   formatMurrayAiPublicAnswer,
   canUseMurrayAiToday,
   getMurrayAiPlan,
@@ -46,6 +49,56 @@ assert.equal(canUseMurrayAiToday(5, plan), false);
 assert.equal(isMurrayAiUnlimitedUser("227478941089136641"), true);
 assert.equal(isMurrayAiUnlimitedUser("123"), false);
 
+
+const previousBetaEnabled = process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED;
+const previousBetaRole = process.env.MURRAY_AI_ARISTOCRATA_BETA_ROLE_NAME;
+const previousBetaLimit = process.env.MURRAY_AI_ARISTOCRATA_BETA_DAILY_LIMIT;
+process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED = "true";
+delete process.env.MURRAY_AI_ARISTOCRATA_BETA_ROLE_NAME;
+delete process.env.MURRAY_AI_ARISTOCRATA_BETA_DAILY_LIMIT;
+const betaConfig = getMurrayAiAristocrataBetaConfig();
+assert.equal(betaConfig.enabled, true);
+assert.equal(betaConfig.roleName, "Aristocrata");
+assert.equal(betaConfig.dailyAskLimit, 1);
+assert.equal(isMurrayAiAristocrataBetaEligible(["OK", "Aristocrata"], betaConfig), true);
+assert.equal(isMurrayAiAristocrataBetaEligible(["OK"], betaConfig), false);
+assert.ok(buildMurrayAiAristocrataBetaCta(betaConfig).includes("beta test"));
+assert.ok(buildMurrayAiAristocrataBetaCta(betaConfig).includes("1 pergunta grátis por dia"));
+process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED = "false";
+assert.equal(getMurrayAiAristocrataBetaConfig().enabled, false);
+if (previousBetaEnabled === undefined) delete process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED; else process.env.MURRAY_AI_ARISTOCRATA_BETA_ENABLED = previousBetaEnabled;
+if (previousBetaRole === undefined) delete process.env.MURRAY_AI_ARISTOCRATA_BETA_ROLE_NAME; else process.env.MURRAY_AI_ARISTOCRATA_BETA_ROLE_NAME = previousBetaRole;
+if (previousBetaLimit === undefined) delete process.env.MURRAY_AI_ARISTOCRATA_BETA_DAILY_LIMIT; else process.env.MURRAY_AI_ARISTOCRATA_BETA_DAILY_LIMIT = previousBetaLimit;
+
+
+
+void (async () => {
+  const previousApiKey = process.env.MURRAY_AI_API_KEY;
+  delete process.env.MURRAY_AI_API_KEY;
+  const betaQuestionResult = await askMurrayAiQuestion({
+    userId: "aristocrata-beta-user",
+    channel: {},
+    question: "o que são drivechains?",
+    memberRoleNames: ["Aristocrata"],
+  });
+  assert.equal(betaQuestionResult.active, true);
+  assert.equal(betaQuestionResult.promotional, true);
+  assert.equal(betaQuestionResult.limited, false);
+  assert.ok(betaQuestionResult.answer.includes("Promo beta test"));
+  assert.ok(betaQuestionResult.answer.includes("1 pergunta grátis por dia"));
+  const betaQuestionLimited = await askMurrayAiQuestion({
+    userId: "aristocrata-beta-user",
+    channel: {},
+    question: "posso perguntar de novo?",
+    memberRoleNames: ["Aristocrata"],
+  });
+  assert.equal(betaQuestionLimited.active, true);
+  assert.equal(betaQuestionLimited.promotional, true);
+  assert.equal(betaQuestionLimited.limited, true);
+  assert.ok(betaQuestionLimited.answer.includes("pergunta grátis de hoje"));
+  if (previousApiKey === undefined) delete process.env.MURRAY_AI_API_KEY;
+  else process.env.MURRAY_AI_API_KEY = previousApiKey;
+})();
 
 const context = buildMurrayAiContext([
   {

@@ -10,6 +10,9 @@ import {
   buildMurrayAiPrompt,
   buildMurrayAiThreadName,
   canUseMurrayAiToday,
+  buildMurrayAiAristocrataBetaCta,
+  getMurrayAiAristocrataBetaConfig,
+  isMurrayAiAristocrataBetaEligible,
   getMurrayAiPlan,
   MurrayAiContextMessage,
   sanitizeMurrayAiAnswer,
@@ -31,6 +34,7 @@ export interface MurrayAiQuestionResult {
   answer: string;
   active: boolean;
   limited: boolean;
+  promotional: boolean;
 }
 
 export const deployAskCommand = () => {
@@ -54,6 +58,14 @@ const usageKey = (userId: string, now = new Date()) =>
   `${userId}:${now.toISOString().slice(0, 10)}`;
 
 const getUsedToday = (userId: string) => usageByUserAndDay.get(usageKey(userId)) || 0;
+
+export const extractMemberRoleNames = (member: any): string[] => {
+  const cache = member?.roles?.cache;
+  if (!cache) return [];
+  if (typeof cache.map === "function") return cache.map((role: any) => role?.name).filter(Boolean);
+  if (typeof cache.values === "function") return Array.from(cache.values()).map((role: any) => role?.name).filter(Boolean);
+  return [];
+};
 
 export const isMurrayAiUnlimitedUser = (userId: string): boolean => {
   const unlimitedUserIds = (process.env.MURRAY_AI_UNLIMITED_USER_IDS || "227478941089136641")
@@ -271,25 +283,33 @@ export const askMurrayAiQuestion = async ({
   userId,
   channel,
   question,
+  memberRoleNames = [],
 }: {
   userId: string;
   channel: any;
   question: string;
+  memberRoleNames?: string[];
 }): Promise<MurrayAiQuestionResult> => {
   const plan = getMurrayAiPlan();
+  const betaConfig = getMurrayAiAristocrataBetaConfig();
   const active = await hasActiveOligarcaSubscription(userId);
+  const promotional = !active && isMurrayAiAristocrataBetaEligible(memberRoleNames, betaConfig);
 
-  if (!active) {
-    return { answer: buildMurrayAiSubscribeCta(), active: false, limited: false };
+  if (!active && !promotional) {
+    return { answer: buildMurrayAiSubscribeCta(), active: false, limited: false, promotional: false };
   }
 
   const unlimited = isMurrayAiUnlimitedUser(userId);
   const usedToday = getUsedToday(userId);
-  if (!unlimited && !canUseMurrayAiToday(usedToday, plan)) {
+  const dailyLimit = promotional ? betaConfig.dailyAskLimit : plan.dailyAskLimit;
+  if (!unlimited && usedToday >= dailyLimit) {
     return {
-      answer: `Você atingiu o limite diário do Murray AI (${plan.dailyAskLimit}/${plan.dailyAskLimit}). Tente novamente amanhã.`,
+      answer: promotional
+        ? `🎩🧠 Você já usou sua pergunta grátis de hoje no beta do Murray AI para Aristocratas (${dailyLimit}/${dailyLimit}). Amanhã libera de novo!\n\nQuer mais perguntas por dia? Use \`/oligarcas meses:1\` para assinar Oligarca + Murray AI.`
+        : `Você atingiu o limite diário do Murray AI (${plan.dailyAskLimit}/${plan.dailyAskLimit}). Tente novamente amanhã.`,
       active: true,
       limited: true,
+      promotional,
     };
   }
 
@@ -301,10 +321,13 @@ export const askMurrayAiQuestion = async ({
     console.log(`murray AI provider error: ${error}`);
     return null;
   });
-  const answer = providerAnswer || buildMurrayAiFallbackAnswer(question, contextLines, plan);
+  const baseAnswer = providerAnswer || buildMurrayAiFallbackAnswer(question, contextLines, plan);
+  const answer = promotional
+    ? `${buildMurrayAiAristocrataBetaCta(betaConfig)}\n\n---\n\n${baseAnswer}`
+    : baseAnswer;
 
   if (!unlimited) incrementUsage(userId);
-  return { answer, active: true, limited: false };
+  return { answer, active: true, limited: false, promotional };
 };
 
 const createFollowUpThread = async (
@@ -427,6 +450,7 @@ export async function askCommand(
       userId: interaction.user.id,
       channel: interaction.channel,
       question,
+      memberRoleNames: extractMemberRoleNames(interaction.member),
     });
 
     const answer = result.active && !result.limited
