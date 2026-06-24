@@ -17,6 +17,7 @@ import { NodeStatsCommand, deployNodeStatsCommand } from "./_nodeStats";
 import { blockCommand, deployBlockCommand } from "./_block";
 import { addressCommand, deployAddressCommand } from "./_address";
 import { deployTransactionCommand, transactionCommand } from "./_transaction";
+import { askCommand, deployAskCommand } from "./_ask";
 
 interface CommandHandlers {
   [key: string]: (interaction: ChatInputCommandInteraction) => Promise<void>;
@@ -35,6 +36,7 @@ export const commands = {
     deployBlockCommand(),
     deployAddressCommand(),
     deployTransactionCommand(),
+    deployAskCommand(),
   ],
   commands: {
     convert: convertCommand,
@@ -48,5 +50,6 @@ export const commands = {
     block: blockCommand,
     address: addressCommand,
     transaction: transactionCommand,
+    ask: askCommand,
   } as CommandHandlers,
 };

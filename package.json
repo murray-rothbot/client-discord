@@ -10,7 +10,8 @@
     "build": "tsc",
     "clean": "rm -Rf dist/*",
     "prebuild": "npm run clean",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "test": "ts-node tests/formatDiscordMemberLog.test.ts && ts-node tests/murrayAi.test.ts && ts-node tests/askCommandReplyFlow.test.ts"
   },
   "keywords": [],
   "author": "",
