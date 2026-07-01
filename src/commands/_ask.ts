@@ -410,22 +410,21 @@ export const sendDiscordMessageChunks = async ({
   shouldCreateThread: boolean;
   questionAuthorId?: string;
 }): Promise<void> => {
-  const replyMessage = await message.reply(chunks[0]);
-  const remainingChunks = chunks.slice(1);
-
-  if (remainingChunks.length === 0) {
-    if (shouldCreateThread) await createFollowUpThread(replyMessage as Message, question, questionAuthorId);
-    return;
-  }
-
   if (shouldCreateThread) {
-    const thread = await createFollowUpThread(replyMessage as Message, question, questionAuthorId);
+    const thread = await createFollowUpThread(message as Message, question, questionAuthorId);
     if (thread?.send) {
-      for (const chunk of remainingChunks) {
+      for (const chunk of chunks) {
         await thread.send(chunk);
       }
       return;
     }
+  }
+
+  const replyMessage = await message.reply(chunks[0]);
+  const remainingChunks = chunks.slice(1);
+
+  if (remainingChunks.length === 0) {
+    return;
   }
 
   for (const chunk of remainingChunks) {
